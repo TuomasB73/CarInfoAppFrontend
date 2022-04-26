@@ -1,14 +1,13 @@
 import React from 'react';
-import {SafeAreaView, StatusBar, Text} from 'react-native';
-import GlobalStyles from '../styles/GlobalStyles';
+import {StatusBar, Text, View} from 'react-native';
 import PropTypes from 'prop-types';
 
 const Home = ({navigation}) => {
   return (
-    <SafeAreaView style={GlobalStyles.androidSafeArea}>
+    <View>
       <Text>This is home screen</Text>
       <StatusBar style="auto" />
-    </SafeAreaView>
+    </View>
   );
 };
 

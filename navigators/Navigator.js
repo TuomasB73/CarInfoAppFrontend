@@ -1,17 +1,16 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable react/display-name */
 import React, {useContext} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
-import {
-  getFocusedRouteNameFromRoute,
-  NavigationContainer,
-} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {MainContext} from '../contexts/MainContext';
 import Home from '../views/Home';
 import AddCar from '../views/AddCar';
 import AllPictures from '../views/AllPictures';
 import CarModels from '../views/CarModels';
+import CarInfo from '../views/CarInfo';
+import CarModelPictures from '../views/CarModelPictures';
+import Reviews from '../views/Reviews';
+import Login from '../views/Login';
 import {Ionicons} from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -50,17 +49,30 @@ const StackScreen = () => {
   const {isLoggedIn, isUsingAnonymously} = useContext(MainContext);
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name="Home"
-        component={TabScreen}
-        options={({route}) => ({
-          headerTitle: getFocusedRouteNameFromRoute(route),
-        })}
-      />
-      <Stack.Screen name="CarModels" component={CarModels} />
-      {/* <Stack.Screen name="CarInfo" component={CarInfo} />
-      <Stack.Screen name="Reviews" component={Reviews} />
-      <Stack.Screen name="CarModelPictures" component={CarModelPictures} /> */}
+      {isLoggedIn || isUsingAnonymously ? (
+        <>
+          <Stack.Screen
+            name="Tab screen"
+            component={TabScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen name="Car models" component={CarModels} />
+          <Stack.Screen name="Car info" component={CarInfo} />
+          <Stack.Screen name="Reviews" component={Reviews} />
+          <Stack.Screen
+            name="Car model pictures"
+            component={CarModelPictures}
+          />
+        </>
+      ) : (
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{headerShown: false}}
+        />
+      )}
     </Stack.Navigator>
   );
 };
