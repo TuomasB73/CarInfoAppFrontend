@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 const MainContext = React.createContext({});
 
 const MainProvider = ({children}) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isUsingAnonymously, setIsUsingAnonymously] = useState(false);
   const [user, setUser] = useState({});
 
