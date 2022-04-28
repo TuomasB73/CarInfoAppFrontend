@@ -71,33 +71,34 @@ const Login = ({navigation}) => {
         username: loginInputs.email,
         password: loginInputs.password,
       });
-      setUser(userData);
-      setIsLoggedIn(true);
-      console.log('TESTIIII', JSON.stringify(userData));
-      await AsyncStorage.setItem('userToken', userData.token);
-      setLoading(false);
+      if (userData != null) {
+        setUser(userData);
+        setIsLoggedIn(true);
+        await AsyncStorage.setItem('userToken', userData.token);
+        setLoading(false);
+      } else {
+        setLoading(false);
+        Alert.alert('Invalid username or password');
+      }
     } catch (error) {
-      setLoading(false);
-      console.error('postLogin error', error.message);
-      Alert.alert('Invalid username or password');
+      console.error('doLogin error', error.message);
     }
   };
 
   const doRegister = async () => {
     if (!validateOnSend()) {
-      Alert.alert('Input validation failed');
+      Alert.alert('Invalid inputs');
       console.log('validate on send failed');
       return;
     }
     delete registerInputs.confirmPassword;
     try {
-      const result = await postRegister({
+      const registered = await postRegister({
         username: registerInputs.email,
         nickname: registerInputs.nickname,
         password: registerInputs.password,
       });
-      console.log('doRegister ok', result.message);
-      Alert.alert(result.message);
+      console.log('REGISTERED', JSON.stringify(registered));
       // do automatic login after registering
       const userData = await postLogin({
         username: registerInputs.email,
@@ -107,8 +108,8 @@ const Login = ({navigation}) => {
       setIsLoggedIn(true);
       setUser(userData);
     } catch (error) {
-      console.log('registration error', error);
-      Alert.alert(error.message);
+      console.log('doRegister', error);
+      Alert.alert('Registration failed');
     }
   };
 
@@ -117,115 +118,126 @@ const Login = ({navigation}) => {
   }, []);
 
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={styles.scrollView}>
       <KeyboardAvoidingView
+        style={styles.container}
         behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
         enabled
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View>
-            <View>
-              {formToggle ? <Text>Login</Text> : <Text>Register</Text>}
-              <View>
-                {formToggle ? (
-                  <View>
-                    <TextInput
-                      autoCapitalize="none"
-                      placeholder="Email"
-                      onChangeText={(txt) =>
-                        handleLoginInputChange('email', txt)
-                      }
-                    ></TextInput>
-                    <TextInput
-                      autoCapitalize="none"
-                      placeholder="Password"
-                      onChangeText={(txt) =>
-                        handleLoginInputChange('password', txt)
-                      }
-                      secureTextEntry={true}
-                    ></TextInput>
-                    <Button title="Login" onPress={doLogin} loading={loading} />
-                  </View>
-                ) : (
-                  <View>
-                    <TextInput
-                      autoCapitalize="none"
-                      placeholder="Email"
-                      onChangeText={(txt) =>
-                        handleRegisterInputChange('email', txt)
-                      }
-                      onEndEditing={(event) => {
-                        checkEmailAvailable(event);
-                        handleRegisterInputEnd('email', event.nativeEvent.text);
-                      }}
-                      errorMessage={registerErrors.email}
-                    ></TextInput>
-                    <TextInput
-                      autoCapitalize="none"
-                      placeholder="Nickname"
-                      onChangeText={(txt) =>
-                        handleRegisterInputChange('nickname', txt)
-                      }
-                      onEndEditing={(event) => {
-                        checkNicknameAvailable(event);
-                        handleRegisterInputEnd(
-                          'nickname',
-                          event.nativeEvent.text
-                        );
-                      }}
-                      errorMessage={registerErrors.nickname}
-                    ></TextInput>
-                    <TextInput
-                      autoCapitalize="none"
-                      placeholder="Password"
-                      onChangeText={(txt) =>
-                        handleRegisterInputChange('password', txt)
-                      }
-                      onEndEditing={(event) => {
-                        handleRegisterInputEnd(
-                          'password',
-                          event.nativeEvent.text
-                        );
-                      }}
-                      secureTextEntry={true}
-                      errorMessage={registerErrors.password}
-                    ></TextInput>
-                    <TextInput
-                      autoCapitalize="none"
-                      placeholder="Confirm password"
-                      onChangeText={(txt) =>
-                        handleRegisterInputChange('confirmPassword', txt)
-                      }
-                      onEndEditing={(event) => {
-                        handleRegisterInputEnd(
-                          'confirmPassword',
-                          event.nativeEvent.text
-                        );
-                      }}
-                      secureTextEntry={true}
-                      errorMessage={registerErrors.confirmPassword}
-                    ></TextInput>
-                    <Button title="Register" onPress={doRegister} />
-                  </View>
-                )}
-              </View>
+          <View style={styles.content}>
+            <View style={styles.formContainer}>
+              {formToggle ? (
+                <Text style={styles.formTitle}>Login</Text>
+              ) : (
+                <Text style={styles.formTitle}>Register</Text>
+              )}
+              {formToggle ? (
+                <View>
+                  <TextInput
+                    autoCapitalize="none"
+                    placeholder="Email"
+                    onChangeText={(txt) => handleLoginInputChange('email', txt)}
+                    style={styles.inputField}
+                  ></TextInput>
+                  <TextInput
+                    autoCapitalize="none"
+                    placeholder="Password"
+                    onChangeText={(txt) =>
+                      handleLoginInputChange('password', txt)
+                    }
+                    secureTextEntry={true}
+                    style={styles.inputField}
+                  ></TextInput>
+                  <Button title="Login" onPress={doLogin} loading={loading} />
+                </View>
+              ) : (
+                <View>
+                  <TextInput
+                    autoCapitalize="none"
+                    placeholder="Email"
+                    onChangeText={(txt) =>
+                      handleRegisterInputChange('email', txt)
+                    }
+                    onEndEditing={(event) => {
+                      checkEmailAvailable(event);
+                      handleRegisterInputEnd('email', event.nativeEvent.text);
+                    }}
+                    errorMessage={registerErrors.email}
+                    style={styles.inputField}
+                  ></TextInput>
+                  <TextInput
+                    autoCapitalize="none"
+                    placeholder="Nickname"
+                    onChangeText={(txt) =>
+                      handleRegisterInputChange('nickname', txt)
+                    }
+                    onEndEditing={(event) => {
+                      checkNicknameAvailable(event);
+                      handleRegisterInputEnd(
+                        'nickname',
+                        event.nativeEvent.text
+                      );
+                    }}
+                    errorMessage={registerErrors.nickname}
+                    style={styles.inputField}
+                  ></TextInput>
+                  <TextInput
+                    autoCapitalize="none"
+                    placeholder="Password"
+                    onChangeText={(txt) =>
+                      handleRegisterInputChange('password', txt)
+                    }
+                    onEndEditing={(event) => {
+                      handleRegisterInputEnd(
+                        'password',
+                        event.nativeEvent.text
+                      );
+                    }}
+                    secureTextEntry={true}
+                    errorMessage={registerErrors.password}
+                    style={styles.inputField}
+                  ></TextInput>
+                  <TextInput
+                    autoCapitalize="none"
+                    placeholder="Confirm password"
+                    onChangeText={(txt) =>
+                      handleRegisterInputChange('confirmPassword', txt)
+                    }
+                    onEndEditing={(event) => {
+                      handleRegisterInputEnd(
+                        'confirmPassword',
+                        event.nativeEvent.text
+                      );
+                    }}
+                    secureTextEntry={true}
+                    errorMessage={registerErrors.confirmPassword}
+                    style={styles.inputField}
+                  ></TextInput>
+                  <Button title="Register" onPress={doRegister} />
+                </View>
+              )}
               <TouchableHighlight
                 underlayColor={'transparent'}
                 onPress={() => {
                   setFormToggle(!formToggle);
                 }}
+                style={styles.textButton}
               >
-                <Text>
+                <Text style={styles.buttonText}>
                   {formToggle
-                    ? 'New user? Register here.'
-                    : 'Already registered? Login here.'}
+                    ? 'New user? Register here'
+                    : 'Already registered? Login here'}
                 </Text>
               </TouchableHighlight>
               <TouchableHighlight
                 underlayColor={'transparent'}
                 onPress={skipLogin}
+                style={styles.textButton}
               >
-                <Text>Continue without logging in</Text>
+                <Text style={styles.buttonText}>
+                  Continue without logging in
+                </Text>
               </TouchableHighlight>
             </View>
           </View>
@@ -236,7 +248,44 @@ const Login = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  scrollView: {
+    flexGrow: 1,
+  },
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+    backgroundColor: 'lightgray',
+  },
+  formContainer: {
+    padding: 40,
+    alignItems: 'stretch',
+    backgroundColor: 'lightblue',
+  },
+  formTitle: {
+    fontSize: 30,
+    marginBottom: 16,
+  },
+  inputField: {
+    fontSize: 18,
+    margin: 12,
+    padding: 6,
+    borderRadius: 12,
+    backgroundColor: 'white',
+  },
+  textButton: {
+    margin: 8,
+    padding: 8,
+  },
+  buttonText: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+});
 
 Login.propTypes = {
   navigation: PropTypes.object,
