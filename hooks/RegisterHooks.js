@@ -82,7 +82,9 @@ const useSignUpForm = (callback) => {
 
   const checkEmailAvailable = async (event) => {
     try {
-      const result = await checkIsEmailAvailable(event.nativeEvent.text);
+      const result = await checkIsEmailAvailable({
+        username: event.nativeEvent.text,
+      });
       if (!result) {
         setRegisterErrors((registerErrors) => {
           return {
@@ -98,7 +100,9 @@ const useSignUpForm = (callback) => {
 
   const checkNicknameAvailable = async (event) => {
     try {
-      const result = await checkIsNicknameAvailable(event.nativeEvent.text);
+      const result = await checkIsNicknameAvailable({
+        nickname: event.nativeEvent.text,
+      });
       if (!result) {
         setRegisterErrors((registerErrors) => {
           return {

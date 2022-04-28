@@ -1,4 +1,7 @@
-const GRAPHQL_URL = 'https://192.168.8.114:8000/graphql';
+import {useContext, useEffect, useState} from 'react';
+import {MainContext} from '../contexts/MainContext';
+
+const GRAPHQL_URL = 'https://env-8426215.jelastic.metropolia.fi/graphql';
 
 const fetchGraphql = async (query) => {
   const options = {
@@ -20,7 +23,7 @@ const fetchGraphql = async (query) => {
 };
 
 const useUser = () => {
-  const postLogin = async (inputs) => {
+  const postLogin = async (variables) => {
     const query = {
       query: `
               query Query($username: String!, $password: String!) {
@@ -31,7 +34,7 @@ const useUser = () => {
                   token
                 }
               }`,
-      variables: inputs,
+      variables,
     };
     try {
       const data = await fetchGraphql(query);
@@ -41,7 +44,7 @@ const useUser = () => {
     }
   };
 
-  const postRegister = async (inputs) => {
+  const postRegister = async (variables) => {
     const query = {
       query: `
               mutation Mutation($username: String!, $nickname: String!, $password: String!) {
@@ -52,7 +55,7 @@ const useUser = () => {
                   token
                 }
               }`,
-      variables: inputs,
+      variables,
     };
     try {
       const data = await fetchGraphql(query);
@@ -73,7 +76,7 @@ const useUser = () => {
                   token
                 }
               }`,
-      headers: {'x-access-token': token},
+      headers: {Authorization: `Bearer ${token}`},
     };
     try {
       const data = await fetchGraphql(query);
@@ -83,13 +86,13 @@ const useUser = () => {
     }
   };
 
-  const checkIsEmailAvailable = async (email) => {
+  const checkIsEmailAvailable = async (variables) => {
     const query = {
       query: `
               query Query($username: String!) {
                 checkIsUsernameAvailable(username: $username)
               }`,
-      variables: {username: email},
+      variables,
     };
     try {
       const data = await fetchGraphql(query);
@@ -99,13 +102,13 @@ const useUser = () => {
     }
   };
 
-  const checkIsNicknameAvailable = async (nickname) => {
+  const checkIsNicknameAvailable = async (variables) => {
     const query = {
       query: `
               query Query($nickname: String!) {
                 checkIsNicknameAvailable(nickname: $nickname)
               }`,
-      variables: {nickname},
+      variables,
     };
     try {
       const data = await fetchGraphql(query);
@@ -124,4 +127,78 @@ const useUser = () => {
   };
 };
 
-export {useUser};
+const useLoadData = () => {
+  const [brandsArray, setBrandsArray] = useState([]);
+  const {updateBrands} = useContext(MainContext);
+
+  const getBrands = async () => {
+    const query = {
+      query: `
+              query Query {
+                getAllBrands {
+                  id
+                  name
+                }
+              }`,
+    };
+    try {
+      const data = await fetchGraphql(query);
+      setBrandsArray(data.getAllBrands);
+    } catch (e) {
+      console.log('getBrands', e.message);
+    }
+  };
+  useEffect(() => {
+    getBrands();
+  }, [updateBrands]);
+  return brandsArray;
+};
+
+const useCar = () => {
+  const postCar = async (variables, token) => {
+    const query = {
+      query: `
+              mutation Mutation($brand: String!, $model: String!, $year: Int!, $bodyStyles: [String], $numbersOfDoors: [Int], $drivetrains: [String], $variants: [VariantInput], $defaultImageFilename: String) {
+                addCar(brand: $brand, model: $model, year: $year, bodyStyles: $bodyStyles, numbersOfDoors: $numbersOfDoors, drivetrains: $drivetrains, variants: $variants, defaultImageFilename: $defaultImageFilename) {
+                  id
+                  fullModelName {
+                    id
+                    name
+                  }
+                  brand {
+                    id
+                    name
+                  }
+                  model
+                  year
+                  bodyStyles
+                  numbersOfDoors
+                  drivetrains
+                  variants {
+                    id
+                    fuelType
+                    engineDisplacement
+                    transmission
+                    powerHp
+                    acceleration0_100KmhS
+                    fuelConsumptionL100Km
+                    co2EmissionsGkm
+                  }
+                  defaultImageFilename
+                }
+              }`,
+      variables,
+      headers: {Authorization: `Bearer ${token}`},
+    };
+    try {
+      const data = await fetchGraphql(query);
+      return data.addCar;
+    } catch (e) {
+      console.log('postCar', e.message);
+    }
+  };
+
+  return {postCar};
+};
+
+export {useUser, useLoadData, useCar};
