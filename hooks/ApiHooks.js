@@ -12,7 +12,7 @@ const fetchGraphql = async (query, token) => {
     },
     body: JSON.stringify(query),
   };
-  if (token != null) {
+  if (token) {
     options.headers.Authorization = `Bearer ${token}`;
   }
   try {
@@ -184,6 +184,56 @@ const useLoadCarModels = (variables) => {
   return carModelsArray;
 };
 
+const useLoadCarModel = (variables) => {
+  const [carModel, setCarModel] = useState(null);
+
+  const getCarModel = async () => {
+    const query = {
+      query: `
+              query Query($getCarByIdId: ID!) {
+                getCarById(id: $getCarByIdId) {
+                  id
+                  fullModelName {
+                    id
+                    name
+                  }
+                  brand {
+                    id
+                    name
+                  }
+                  model
+                  year
+                  bodyStyles
+                  numbersOfDoors
+                  drivetrains
+                  variants {
+                    id
+                    fuelType
+                    engineDisplacement
+                    transmission
+                    powerHp
+                    acceleration0_100KmhS
+                    fuelConsumptionL100Km
+                    co2EmissionsGkm
+                  }
+                  defaultImageFilename
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query);
+      setCarModel(data.getCarById);
+    } catch (e) {
+      console.log('getCarModel', e.message);
+    }
+  };
+  useEffect(() => {
+    getCarModel();
+  }, []);
+  return carModel;
+};
+
 const useCar = () => {
   const postCar = async (variables, token) => {
     const query = {
@@ -230,4 +280,4 @@ const useCar = () => {
   return {postCar};
 };
 
-export {useUser, useLoadBrands, useLoadCarModels, useCar};
+export {useUser, useLoadBrands, useLoadCarModels, useLoadCarModel, useCar};

@@ -49,7 +49,7 @@ const Login = ({navigation}) => {
       if (userToken) {
         try {
           const userData = await checkToken(userToken);
-          if (userData != null) {
+          if (userData) {
             setUser(userData);
             setIsLoggedIn(true);
           }
@@ -73,7 +73,7 @@ const Login = ({navigation}) => {
         username: loginInputs.email,
         password: loginInputs.password,
       });
-      if (userData != null) {
+      if (userData) {
         setUser(userData);
         await AsyncStorage.setItem('userToken', userData.token);
         setLoading(false);
@@ -105,7 +105,7 @@ const Login = ({navigation}) => {
         username: registerInputs.email,
         password: registerInputs.password,
       });
-      if (userData != null) {
+      if (userData) {
         setUser(userData);
         await AsyncStorage.setItem('userToken', userData.token);
         setIsLoggedIn(true);
@@ -257,12 +257,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: 'center',
-    backgroundColor: 'lightgray',
   },
   formContainer: {
     padding: 40,
     alignItems: 'stretch',
     backgroundColor: 'lightblue',
+    borderRadius: 10,
   },
   formTitle: {
     fontSize: 30,

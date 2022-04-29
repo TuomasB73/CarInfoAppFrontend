@@ -59,7 +59,6 @@ const Home = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'lightgray',
   },
   logoutLoginButtonContainer: {
     alignSelf: 'flex-end',
@@ -89,7 +88,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   listItem: {
-    backgroundColor: 'white',
+    backgroundColor: '#e6e6e6',
     margin: 4,
   },
   listItemText: {
