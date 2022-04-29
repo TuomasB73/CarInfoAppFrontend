@@ -1,21 +1,14 @@
 import React, {useContext} from 'react';
-import {
-  StatusBar,
-  Text,
-  View,
-  StyleSheet,
-  TouchableHighlight,
-  FlatList,
-} from 'react-native';
+import {Text, View, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
 import PropTypes from 'prop-types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {MainContext} from '../contexts/MainContext';
-import {useLoadData} from '../hooks/ApiHooks';
+import {useLoadBrands} from '../hooks/ApiHooks';
 
 const Home = ({navigation}) => {
   const {isLoggedIn, setIsLoggedIn, setUser, setIsUsingAnonymously} =
     useContext(MainContext);
-  const brandsArray = useLoadData();
+  const brandsArray = useLoadBrands();
 
   const logout = async () => {
     await AsyncStorage.clear();
@@ -32,38 +25,33 @@ const Home = ({navigation}) => {
     <View style={styles.container}>
       <View style={styles.logoutLoginButtonContainer}>
         {isLoggedIn ? (
-          <TouchableHighlight
-            style={styles.logoutLoginButton}
-            underlayColor={'transparent'}
-            onPress={logout}
-          >
+          <TouchableOpacity style={styles.logoutLoginButton} onPress={logout}>
             <Text style={styles.buttonText}>Logout</Text>
-          </TouchableHighlight>
+          </TouchableOpacity>
         ) : (
-          <TouchableHighlight
-            style={styles.logoutLoginButton}
-            underlayColor={'transparent'}
-            onPress={login}
-          >
+          <TouchableOpacity style={styles.logoutLoginButton} onPress={login}>
             <Text style={styles.buttonText}>Login</Text>
-          </TouchableHighlight>
+          </TouchableOpacity>
         )}
       </View>
       <Text style={styles.titleText}>Find car models</Text>
       <Text style={styles.text}>Select a car brand</Text>
       <View style={styles.listContainer}>
         <FlatList
-          contentContainerStyle={styles.list}
           data={brandsArray}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => (
-            <View style={styles.listItem}>
+            <TouchableOpacity
+              style={styles.listItem}
+              onPress={() => {
+                navigation.navigate('Car models', {brand: item});
+              }}
+            >
               <Text style={styles.listItemText}>{item.name}</Text>
-            </View>
+            </TouchableOpacity>
           )}
         ></FlatList>
       </View>
-      <StatusBar style="auto" />
     </View>
   );
 };
@@ -100,7 +88,6 @@ const styles = StyleSheet.create({
     marginEnd: 60,
     padding: 8,
   },
-  list: {},
   listItem: {
     backgroundColor: 'white',
     margin: 4,

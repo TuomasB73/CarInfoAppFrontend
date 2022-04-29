@@ -5,7 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
-  TouchableHighlight,
+  TouchableOpacity,
   Button,
   Keyboard,
   TextInput,
@@ -49,8 +49,10 @@ const Login = ({navigation}) => {
       if (userToken) {
         try {
           const userData = await checkToken(userToken);
-          setIsLoggedIn(true);
-          setUser(userData);
+          if (userData != null) {
+            setUser(userData);
+            setIsLoggedIn(true);
+          }
         } catch (error) {
           console.log('token check failed', error.message);
         }
@@ -60,8 +62,8 @@ const Login = ({navigation}) => {
 
   // Function for skipping the login and using the app anonymously.
   const skipLogin = async () => {
-    setIsUsingAnonymously(true);
     await AsyncStorage.setItem('anonymousUser', 'true');
+    setIsUsingAnonymously(true);
   };
 
   const doLogin = async () => {
@@ -73,9 +75,9 @@ const Login = ({navigation}) => {
       });
       if (userData != null) {
         setUser(userData);
-        setIsLoggedIn(true);
         await AsyncStorage.setItem('userToken', userData.token);
         setLoading(false);
+        setIsLoggedIn(true);
       } else {
         setLoading(false);
         Alert.alert('Invalid username or password');
@@ -93,20 +95,21 @@ const Login = ({navigation}) => {
     }
     delete registerInputs.confirmPassword;
     try {
-      const registered = await postRegister({
+      await postRegister({
         username: registerInputs.email,
         nickname: registerInputs.nickname,
         password: registerInputs.password,
       });
-      console.log('REGISTERED', JSON.stringify(registered));
       // do automatic login after registering
       const userData = await postLogin({
         username: registerInputs.email,
         password: registerInputs.password,
       });
-      await AsyncStorage.setItem('userToken', userData.token);
-      setIsLoggedIn(true);
-      setUser(userData);
+      if (userData != null) {
+        setUser(userData);
+        await AsyncStorage.setItem('userToken', userData.token);
+        setIsLoggedIn(true);
+      }
     } catch (error) {
       console.log('doRegister', error);
       Alert.alert('Registration failed');
@@ -217,8 +220,7 @@ const Login = ({navigation}) => {
                   <Button title="Register" onPress={doRegister} />
                 </View>
               )}
-              <TouchableHighlight
-                underlayColor={'transparent'}
+              <TouchableOpacity
                 onPress={() => {
                   setFormToggle(!formToggle);
                 }}
@@ -229,16 +231,12 @@ const Login = ({navigation}) => {
                     ? 'New user? Register here'
                     : 'Already registered? Login here'}
                 </Text>
-              </TouchableHighlight>
-              <TouchableHighlight
-                underlayColor={'transparent'}
-                onPress={skipLogin}
-                style={styles.textButton}
-              >
+              </TouchableOpacity>
+              <TouchableOpacity onPress={skipLogin} style={styles.textButton}>
                 <Text style={styles.buttonText}>
                   Continue without logging in
                 </Text>
-              </TouchableHighlight>
+              </TouchableOpacity>
             </View>
           </View>
         </TouchableWithoutFeedback>
