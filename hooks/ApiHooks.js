@@ -3,7 +3,7 @@ import {MainContext} from '../contexts/MainContext';
 
 const GRAPHQL_URL = 'https://env-8426215.jelastic.metropolia.fi/graphql';
 
-const fetchGraphql = async (query) => {
+const fetchGraphql = async (query, token) => {
   const options = {
     method: 'POST',
     headers: {
@@ -12,6 +12,9 @@ const fetchGraphql = async (query) => {
     },
     body: JSON.stringify(query),
   };
+  if (token != null) {
+    options.headers.Authorization = `Bearer ${token}`;
+  }
   try {
     const response = await fetch(GRAPHQL_URL, options);
     const json = await response.json();
@@ -76,10 +79,9 @@ const useUser = () => {
                   token
                 }
               }`,
-      headers: {Authorization: `Bearer ${token}`},
     };
     try {
-      const data = await fetchGraphql(query);
+      const data = await fetchGraphql(query, token);
       return data.getMyUser;
     } catch (e) {
       console.log('checkToken', e.message);
@@ -127,7 +129,7 @@ const useUser = () => {
   };
 };
 
-const useLoadData = () => {
+const useLoadBrands = () => {
   const [brandsArray, setBrandsArray] = useState([]);
   const {updateBrands} = useContext(MainContext);
 
@@ -152,6 +154,34 @@ const useLoadData = () => {
     getBrands();
   }, [updateBrands]);
   return brandsArray;
+};
+
+const useLoadCarModels = (variables) => {
+  const [carModelsArray, setCarModelsArray] = useState([]);
+
+  const getCarModels = async () => {
+    const query = {
+      query: `
+            query Query($brand: ID) {
+              getAllCars(brand: $brand) {
+                id
+                model
+                year
+              }
+            }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query);
+      setCarModelsArray(data.getAllCars);
+    } catch (e) {
+      console.log('getCarModels', e.message);
+    }
+  };
+  useEffect(() => {
+    getCarModels();
+  }, []);
+  return carModelsArray;
 };
 
 const useCar = () => {
@@ -188,10 +218,9 @@ const useCar = () => {
                 }
               }`,
       variables,
-      headers: {Authorization: `Bearer ${token}`},
     };
     try {
-      const data = await fetchGraphql(query);
+      const data = await fetchGraphql(query, token);
       return data.addCar;
     } catch (e) {
       console.log('postCar', e.message);
@@ -201,4 +230,4 @@ const useCar = () => {
   return {postCar};
 };
 
-export {useUser, useLoadData, useCar};
+export {useUser, useLoadBrands, useLoadCarModels, useCar};
