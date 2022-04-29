@@ -1,8 +1,10 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import PropTypes from 'prop-types';
 
-const Reviews = ({navigation}) => {
+const Reviews = ({navigation, route}) => {
+  const {carId} = route.params;
+
   return (
     <View>
       <Text>This is reviews screen</Text>
@@ -10,8 +12,11 @@ const Reviews = ({navigation}) => {
   );
 };
 
+const styles = StyleSheet.create({});
+
 Reviews.propTypes = {
   navigation: PropTypes.object,
+  route: PropTypes.object,
 };
 
 export default Reviews;

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import PropTypes from 'prop-types';
 import {useLoadCarModels} from '../hooks/ApiHooks';
@@ -36,7 +36,6 @@ const CarModels = ({navigation, route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'lightgray',
   },
   titleText: {
     fontSize: 30,
@@ -58,7 +57,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   listItem: {
-    backgroundColor: 'white',
+    backgroundColor: '#e6e6e6',
     margin: 4,
   },
   listItemText: {

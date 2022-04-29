@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import PropTypes from 'prop-types';
 
 const AllPictures = ({navigation}) => {
@@ -9,6 +9,8 @@ const AllPictures = ({navigation}) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({});
 
 AllPictures.propTypes = {
   navigation: PropTypes.object,
