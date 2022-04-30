@@ -38,7 +38,7 @@ const Home = ({navigation}) => {
       <Text style={styles.text}>Select a car brand</Text>
       <View style={styles.listContainer}>
         <FlatList
-          data={brandsArray}
+          data={brandsArray.sort((a, b) => a.name.localeCompare(b.name))}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => (
             <TouchableOpacity
