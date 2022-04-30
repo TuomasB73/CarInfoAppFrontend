@@ -165,6 +165,9 @@ const useLoadCarModels = (variables) => {
             query Query($brand: ID) {
               getAllCars(brand: $brand) {
                 id
+                fullModelName {
+                  name
+                }
                 model
                 year
               }

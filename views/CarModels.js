@@ -13,7 +13,9 @@ const CarModels = ({navigation, route}) => {
       <Text style={styles.text}>Select a car model</Text>
       <View style={styles.listContainer}>
         <FlatList
-          data={carModelsArray}
+          data={carModelsArray.sort((a, b) =>
+            a.fullModelName.name.localeCompare(b.fullModelName.name)
+          )}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => (
             <TouchableOpacity
