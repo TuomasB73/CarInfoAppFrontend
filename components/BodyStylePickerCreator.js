@@ -6,7 +6,7 @@ import {Ionicons} from '@expo/vector-icons';
 
 let bodyStyleNamesArray = ['hatchback'];
 
-const BodyStylePickerCreator = () => {
+const BodyStylePickerCreator = ({bodyStyles}) => {
   const [refreshBodyStylePickers, setRefreshBodyStylePickers] = useState(0);
   const [renderCopyArray, setRenderCopyArray] = useState([]);
 
@@ -16,6 +16,9 @@ const BodyStylePickerCreator = () => {
   };
 
   useEffect(() => {
+    if (bodyStyles && refreshBodyStylePickers === 0) {
+      bodyStyleNamesArray = bodyStyles;
+    }
     setRenderCopyArray(bodyStyleNamesArray);
   }, [refreshBodyStylePickers]);
 
@@ -26,7 +29,10 @@ const BodyStylePickerCreator = () => {
         data={renderCopyArray}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item, index}) => (
-          <BodyStylePickerObject bodyStylePickerObjectIndex={index} />
+          <BodyStylePickerObject
+            bodyStylePickerObjectIndex={index}
+            bodyStylePickerObjectValue={item}
+          />
         )}
       ></FlatList>
       <TouchableOpacity style={styles.addButton} onPress={addAnotherBodyStyle}>
@@ -37,13 +43,22 @@ const BodyStylePickerCreator = () => {
   );
 };
 
-const BodyStylePickerObject = ({bodyStylePickerObjectIndex}) => {
+const BodyStylePickerObject = ({
+  bodyStylePickerObjectIndex,
+  bodyStylePickerObjectValue,
+}) => {
   const [selectedBodyStyle, setSelectedBodyStyle] = useState();
 
   const updateValue = (itemValue) => {
     setSelectedBodyStyle(itemValue);
     bodyStyleNamesArray[bodyStylePickerObjectIndex] = itemValue;
   };
+
+  useEffect(() => {
+    if (bodyStylePickerObjectValue) {
+      setSelectedBodyStyle(bodyStylePickerObjectValue);
+    }
+  }, []);
 
   return (
     <View style={styles.pickerContainer}>
@@ -84,8 +99,13 @@ const getAddedBodyStyleNames = () => {
   return bodyStyleNamesArray;
 };
 
+BodyStylePickerCreator.propTypes = {
+  bodyStyles: PropTypes.array,
+};
+
 BodyStylePickerObject.propTypes = {
   bodyStylePickerObjectIndex: PropTypes.number,
+  bodyStylePickerObjectValue: PropTypes.string,
 };
 
 export {BodyStylePickerCreator, getAddedBodyStyleNames};

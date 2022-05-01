@@ -6,7 +6,7 @@ import {Ionicons} from '@expo/vector-icons';
 
 let numberOfDoorsNumbersArray = [1];
 
-const NumberOfDoorsPickerCreator = () => {
+const NumberOfDoorsPickerCreator = ({numbersOfDoors}) => {
   const [refreshNumberOfDoorsPickers, setRefreshNumberOfDoorsPickers] =
     useState(0);
   const [renderCopyArray, setRenderCopyArray] = useState([]);
@@ -17,6 +17,9 @@ const NumberOfDoorsPickerCreator = () => {
   };
 
   useEffect(() => {
+    if (numbersOfDoors && refreshNumberOfDoorsPickers === 0) {
+      numberOfDoorsNumbersArray = numbersOfDoors;
+    }
     setRenderCopyArray(numberOfDoorsNumbersArray);
   }, [refreshNumberOfDoorsPickers]);
 
@@ -27,7 +30,10 @@ const NumberOfDoorsPickerCreator = () => {
         data={renderCopyArray}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item, index}) => (
-          <NumberOfDoorsPickerObject numberOfDoorsPickerObjectIndex={index} />
+          <NumberOfDoorsPickerObject
+            numberOfDoorsPickerObjectIndex={index}
+            numberOfDoorsPickerObjectValue={item}
+          />
         )}
       ></FlatList>
       <TouchableOpacity
@@ -41,13 +47,22 @@ const NumberOfDoorsPickerCreator = () => {
   );
 };
 
-const NumberOfDoorsPickerObject = ({numberOfDoorsPickerObjectIndex}) => {
+const NumberOfDoorsPickerObject = ({
+  numberOfDoorsPickerObjectIndex,
+  numberOfDoorsPickerObjectValue,
+}) => {
   const [selectedNumberOfDoors, setSelectedNumberOfDoors] = useState();
 
   const updateValue = (itemValue) => {
     setSelectedNumberOfDoors(itemValue);
     numberOfDoorsNumbersArray[numberOfDoorsPickerObjectIndex] = itemValue;
   };
+
+  useEffect(() => {
+    if (numberOfDoorsPickerObjectValue) {
+      setSelectedNumberOfDoors(numberOfDoorsPickerObjectValue);
+    }
+  }, []);
 
   return (
     <View style={styles.pickerContainer}>
@@ -84,8 +99,13 @@ const getAddedNumberOfDoorsNumbers = () => {
   return numberOfDoorsNumbersArray;
 };
 
+NumberOfDoorsPickerCreator.propTypes = {
+  numbersOfDoors: PropTypes.array,
+};
+
 NumberOfDoorsPickerObject.propTypes = {
   numberOfDoorsPickerObjectIndex: PropTypes.number,
+  numberOfDoorsPickerObjectValue: PropTypes.number,
 };
 
 export {NumberOfDoorsPickerCreator, getAddedNumberOfDoorsNumbers};

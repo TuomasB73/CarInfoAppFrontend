@@ -12,6 +12,7 @@ import CarModelPictures from '../views/CarModelPictures';
 import Reviews from '../views/Reviews';
 import Login from '../views/Login';
 import {Ionicons} from '@expo/vector-icons';
+import EditCar from '../views/EditCar';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -60,6 +61,7 @@ const StackScreen = () => {
           />
           <Stack.Screen name="Car models" component={CarModels} />
           <Stack.Screen name="Car info" component={CarInfo} />
+          <Stack.Screen name="Edit car" component={EditCar} />
           <Stack.Screen name="Reviews" component={Reviews} />
           <Stack.Screen
             name="Car model pictures"

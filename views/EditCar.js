@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -27,17 +27,25 @@ import {
   VariantFormCreator,
   getAddedVariantObjects,
 } from '../components/VariantFormCreator';
-import useAddCarForm from '../hooks/AddCarHooks';
+import useEditCarForm from '../hooks/EditCarHooks';
 import {useCar} from '../hooks/ApiHooks';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {MainContext} from '../contexts/MainContext';
-import {CommonActions} from '@react-navigation/native';
+import {StackActions} from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 
-const AddCar = ({navigation}) => {
-  const {addCarInputs, handleAddCarInputChange} = useAddCarForm();
-  const {postCar, postCarImage} = useCar();
-  const {updateBrands, setUpdateBrands} = useContext(MainContext);
+const EditCar = ({navigation, route}) => {
+  const {carModel} = route.params;
+  const {editCarInputs, handleEditCarInputChange} = useEditCarForm();
+  const {modifyCar, postCarImage} = useCar();
+  const {
+    updateBrands,
+    setUpdateBrands,
+    updateCarModels,
+    setUpdateCarModels,
+    updateCarModel,
+    setUpdateCarModel,
+  } = useContext(MainContext);
   const [image, setImage] = useState(null);
   const [fileType, setFileType] = useState('');
 
@@ -48,28 +56,27 @@ const AddCar = ({navigation}) => {
       if (image) {
         defaultImageFilename = await postCarImage(image, fileType, userToken);
       }
-      const addCarFormData = {
-        ...addCarInputs,
+      const editCarFormData = {
+        modifyCarId: carModel.id,
+        ...editCarInputs,
         bodyStyles: getAddedBodyStyleNames(),
         numbersOfDoors: getAddedNumberOfDoorsNumbers(),
         drivetrains: getAddedDrivetrainNames(),
         variants: getAddedVariantObjects(),
       };
       if (defaultImageFilename) {
-        addCarFormData.defaultImageFilename = defaultImageFilename;
+        editCarFormData.defaultImageFilename = defaultImageFilename;
       }
-      console.log('ADDCAR', JSON.stringify(addCarFormData));
-      const addedCar = await postCar(addCarFormData, userToken);
-      if (addedCar) {
-        const resetAction = CommonActions.reset({
-          index: 0,
-          routes: [{name: 'Add car'}],
-        });
-        navigation.dispatch(resetAction);
-        navigation.navigate('Home');
+      console.log('EDITCAR', JSON.stringify(editCarFormData));
+      const editedCar = await modifyCar(editCarFormData, userToken);
+      if (editedCar) {
+        const popAction = StackActions.pop();
+        navigation.dispatch(popAction);
+        setUpdateCarModel(updateCarModel + 1);
         setUpdateBrands(updateBrands + 1);
+        setUpdateCarModels(updateCarModels + 1);
       } else {
-        Alert.alert('Error in saving car');
+        Alert.alert('Error in saving edited car info');
       }
     } catch (error) {
       console.error('saveCar error', error.message);
@@ -88,51 +95,66 @@ const AddCar = ({navigation}) => {
     }
   };
 
+  useEffect(() => {
+    handleEditCarInputChange('brand', carModel.brand.name);
+    handleEditCarInputChange('model', carModel.model);
+    handleEditCarInputChange('year', carModel.year);
+  }, []);
+
   return (
     <View style={styles.container}>
       <FlatList
         ListHeaderComponent={
           <>
-            <Text style={styles.titleText}>
-              Add a car model to the database
-            </Text>
+            <Text style={styles.titleText}>Edit car info</Text>
             <Text style={styles.text}>
               Please fill in the correct information
             </Text>
             <View style={styles.formContainer}>
               <TextInput
                 placeholder="Brand"
-                onChangeText={(txt) => handleAddCarInputChange('brand', txt)}
+                defaultValue={carModel.brand.name}
+                onChangeText={(txt) => handleEditCarInputChange('brand', txt)}
                 style={styles.inputField}
               ></TextInput>
               <TextInput
                 placeholder="Model"
-                onChangeText={(txt) => handleAddCarInputChange('model', txt)}
+                defaultValue={carModel.model}
+                onChangeText={(txt) => handleEditCarInputChange('model', txt)}
                 style={styles.inputField}
               ></TextInput>
               <TextInput
                 placeholder="Year"
+                defaultValue={carModel.year.toString()}
                 keyboardType="number-pad"
                 onChangeText={(txt) =>
-                  handleAddCarInputChange('year', parseInt(txt))
+                  handleEditCarInputChange('year', parseInt(txt))
                 }
                 style={styles.inputField}
               ></TextInput>
               <View style={styles.sectionContainer}>
                 <Text style={styles.text}>Body style(s)</Text>
-                <BodyStylePickerCreator></BodyStylePickerCreator>
+                <BodyStylePickerCreator
+                  bodyStyles={carModel.bodyStyles}
+                ></BodyStylePickerCreator>
               </View>
               <View style={styles.sectionContainer}>
                 <Text style={styles.text}>Number(s) of doors</Text>
-                <NumberOfDoorsPickerCreator></NumberOfDoorsPickerCreator>
+                <NumberOfDoorsPickerCreator
+                  numbersOfDoors={carModel.numbersOfDoors}
+                ></NumberOfDoorsPickerCreator>
               </View>
               <View style={styles.sectionContainer}>
                 <Text style={styles.text}>Drivetrain(s)</Text>
-                <DrivetrainPickerCreator></DrivetrainPickerCreator>
+                <DrivetrainPickerCreator
+                  drivetrains={carModel.drivetrains}
+                ></DrivetrainPickerCreator>
               </View>
               <View style={styles.sectionContainer}>
                 <Text style={styles.text}>Variant(s)</Text>
-                <VariantFormCreator></VariantFormCreator>
+                <VariantFormCreator
+                  variants={carModel.variants}
+                ></VariantFormCreator>
               </View>
               <View style={styles.sectionContainer}>
                 <TouchableOpacity
@@ -216,8 +238,8 @@ const styles = StyleSheet.create({
   },
 });
 
-AddCar.propTypes = {
+EditCar.propTypes = {
   navigation: PropTypes.object,
 };
 
-export default AddCar;
+export default EditCar;

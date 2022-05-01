@@ -51,7 +51,12 @@ const CarInfo = ({navigation, route}) => {
               </View>
               <View style={styles.detailsHeaderContainer}>
                 <Text style={styles.headerText}>Details:</Text>
-                <TouchableOpacity style={styles.editButton}>
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => {
+                    navigation.navigate('Edit car', {carModel});
+                  }}
+                >
                   <Ionicons name="pencil" size={30} />
                 </TouchableOpacity>
               </View>

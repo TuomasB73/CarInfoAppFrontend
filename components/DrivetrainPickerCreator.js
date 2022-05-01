@@ -6,7 +6,7 @@ import {Ionicons} from '@expo/vector-icons';
 
 let drivetrainNamesArray = ['front-wheel drive'];
 
-const DrivetrainPickerCreator = () => {
+const DrivetrainPickerCreator = ({drivetrains}) => {
   const [refreshDrivetrainPickers, setRefreshDrivetrainPickers] = useState(0);
   const [renderCopyArray, setRenderCopyArray] = useState([]);
 
@@ -16,6 +16,9 @@ const DrivetrainPickerCreator = () => {
   };
 
   useEffect(() => {
+    if (drivetrains && refreshDrivetrainPickers === 0) {
+      drivetrainNamesArray = drivetrains;
+    }
     setRenderCopyArray(drivetrainNamesArray);
   }, [refreshDrivetrainPickers]);
 
@@ -26,7 +29,10 @@ const DrivetrainPickerCreator = () => {
         data={renderCopyArray}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item, index}) => (
-          <DrivetrainPickerObject drivetrainPickerObjectIndex={index} />
+          <DrivetrainPickerObject
+            drivetrainPickerObjectIndex={index}
+            drivetrainPickerObjectValue={item}
+          />
         )}
       ></FlatList>
       <TouchableOpacity style={styles.addButton} onPress={addAnotherDrivetrain}>
@@ -37,13 +43,22 @@ const DrivetrainPickerCreator = () => {
   );
 };
 
-const DrivetrainPickerObject = ({drivetrainPickerObjectIndex}) => {
+const DrivetrainPickerObject = ({
+  drivetrainPickerObjectIndex,
+  drivetrainPickerObjectValue,
+}) => {
   const [selectedDrivetrain, setSelectedDrivetrain] = useState();
 
   const updateValue = (itemValue) => {
     setSelectedDrivetrain(itemValue);
     drivetrainNamesArray[drivetrainPickerObjectIndex] = itemValue;
   };
+
+  useEffect(() => {
+    if (drivetrainPickerObjectValue) {
+      setSelectedDrivetrain(drivetrainPickerObjectValue);
+    }
+  }, []);
 
   return (
     <View style={styles.pickerContainer}>
@@ -79,8 +94,13 @@ const getAddedDrivetrainNames = () => {
   return drivetrainNamesArray;
 };
 
+DrivetrainPickerCreator.propTypes = {
+  drivetrains: PropTypes.array,
+};
+
 DrivetrainPickerObject.propTypes = {
   drivetrainPickerObjectIndex: PropTypes.number,
+  drivetrainPickerObjectValue: PropTypes.string,
 };
 
 export {DrivetrainPickerCreator, getAddedDrivetrainNames};
