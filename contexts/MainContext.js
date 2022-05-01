@@ -8,6 +8,8 @@ const MainProvider = ({children}) => {
   const [isUsingAnonymously, setIsUsingAnonymously] = useState(false);
   const [user, setUser] = useState({});
   const [updateBrands, setUpdateBrands] = useState(0);
+  const [updateCarModels, setUpdateCarModels] = useState(0);
+  const [updateCarModel, setUpdateCarModel] = useState(0);
 
   return (
     <MainContext.Provider
@@ -20,6 +22,10 @@ const MainProvider = ({children}) => {
         setUser,
         updateBrands,
         setUpdateBrands,
+        updateCarModels,
+        setUpdateCarModels,
+        updateCarModel,
+        setUpdateCarModel,
       }}
     >
       {children}

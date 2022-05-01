@@ -13,7 +13,7 @@ import {Ionicons} from '@expo/vector-icons';
 
 let variantObjectsArray = [{fuelType: 'gasoline'}];
 
-const VariantFormCreator = () => {
+const VariantFormCreator = ({variants}) => {
   const [refreshVariantForms, setRefreshVariantForms] = useState(0);
   const [renderCopyArray, setRenderCopyArray] = useState([]);
 
@@ -23,6 +23,9 @@ const VariantFormCreator = () => {
   };
 
   useEffect(() => {
+    if (variants && refreshVariantForms === 0) {
+      variantObjectsArray = variants;
+    }
     setRenderCopyArray(variantObjectsArray);
   }, [refreshVariantForms]);
 
@@ -33,7 +36,10 @@ const VariantFormCreator = () => {
         data={renderCopyArray}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item, index}) => (
-          <VariantFormObject variantFormObjectIndex={index} />
+          <VariantFormObject
+            variantFormObjectIndex={index}
+            variantFormObjectValue={item}
+          />
         )}
       ></FlatList>
       <TouchableOpacity style={styles.addButton} onPress={addAnotherVariant}>
@@ -44,7 +50,10 @@ const VariantFormCreator = () => {
   );
 };
 
-const VariantFormObject = ({variantFormObjectIndex}) => {
+const VariantFormObject = ({
+  variantFormObjectIndex,
+  variantFormObjectValue,
+}) => {
   const [selectedFuelType, setSelectedFuelType] = useState();
 
   const updateValue = (itemValue) => {
@@ -55,6 +64,33 @@ const VariantFormObject = ({variantFormObjectIndex}) => {
   const handleAddVariantInputChange = (field, value) => {
     variantObjectsArray[variantFormObjectIndex][field] = value;
   };
+
+  useEffect(() => {
+    if (variantFormObjectValue) {
+      setSelectedFuelType(variantFormObjectValue.fuelType);
+      handleAddVariantInputChange(
+        'engineDisplacement',
+        variantFormObjectValue.engineDisplacement
+      );
+      handleAddVariantInputChange(
+        'transmission',
+        variantFormObjectValue.transmission
+      );
+      handleAddVariantInputChange('powerHp', variantFormObjectValue.powerHp);
+      handleAddVariantInputChange(
+        'acceleration0_100KmhS',
+        variantFormObjectValue.acceleration0_100KmhS
+      );
+      handleAddVariantInputChange(
+        'fuelConsumptionL100Km',
+        variantFormObjectValue.fuelConsumptionL100Km
+      );
+      handleAddVariantInputChange(
+        'co2EmissionsGkm',
+        variantFormObjectValue.co2EmissionsGkm
+      );
+    }
+  }, []);
 
   return (
     <View style={styles.variantContainer}>
@@ -72,50 +108,134 @@ const VariantFormObject = ({variantFormObjectIndex}) => {
           <Picker.Item label="ethanol" value="ethanol" />
         </Picker>
       </View>
-      <TextInput
-        placeholder="Engine displacement"
-        onChangeText={(txt) =>
-          handleAddVariantInputChange('engineDisplacement', txt)
-        }
-        style={styles.inputField}
-      ></TextInput>
-      <TextInput
-        placeholder="Transmission"
-        onChangeText={(txt) => handleAddVariantInputChange('transmission', txt)}
-        style={styles.inputField}
-      ></TextInput>
-      <TextInput
-        placeholder="Power (hp)"
-        keyboardType="number-pad"
-        onChangeText={(txt) =>
-          handleAddVariantInputChange('powerHp', parseInt(txt))
-        }
-        style={styles.inputField}
-      ></TextInput>
-      <TextInput
-        placeholder="Acceleration 0-100 km/h (s)"
-        keyboardType="decimal-pad"
-        onChangeText={(txt) =>
-          handleAddVariantInputChange('acceleration0_100KmhS', parseFloat(txt))
-        }
-        style={styles.inputField}
-      ></TextInput>
-      <TextInput
-        placeholder="Fuel consumption (L/100 km)"
-        keyboardType="decimal-pad"
-        onChangeText={(txt) =>
-          handleAddVariantInputChange('fuelConsumptionL100Km', parseFloat(txt))
-        }
-        style={styles.inputField}
-      ></TextInput>
-      <TextInput
-        placeholder="Co2 emissions (g/km)"
-        keyboardType="number-pad"
-        onChangeText={(txt) =>
-          handleAddVariantInputChange('co2EmissionsGkm', parseInt(txt))
-        }
-        style={styles.inputField}
-      ></TextInput>
+      {variantFormObjectValue.engineDisplacement ? (
+        <TextInput
+          placeholder="Engine displacement"
+          defaultValue={variantFormObjectValue.engineDisplacement}
+          onChangeText={(txt) =>
+            handleAddVariantInputChange('engineDisplacement', txt)
+          }
+          style={styles.inputField}
+        ></TextInput>
+      ) : (
+        <TextInput
+          placeholder="Engine displacement"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange('engineDisplacement', txt)
+          }
+          style={styles.inputField}
+        ></TextInput>
+      )}
+      {variantFormObjectValue.transmission ? (
+        <TextInput
+          placeholder="Transmission"
+          defaultValue={variantFormObjectValue.transmission}
+          onChangeText={(txt) =>
+            handleAddVariantInputChange('transmission', txt)
+          }
+          style={styles.inputField}
+        ></TextInput>
+      ) : (
+        <TextInput
+          placeholder="Transmission"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange('transmission', txt)
+          }
+          style={styles.inputField}
+        ></TextInput>
+      )}
+      {variantFormObjectValue.powerHp ? (
+        <TextInput
+          placeholder="Power (hp)"
+          defaultValue={variantFormObjectValue.powerHp.toString()}
+          keyboardType="number-pad"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange('powerHp', parseInt(txt))
+          }
+          style={styles.inputField}
+        ></TextInput>
+      ) : (
+        <TextInput
+          placeholder="Power (hp)"
+          keyboardType="number-pad"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange('powerHp', parseInt(txt))
+          }
+          style={styles.inputField}
+        ></TextInput>
+      )}
+      {variantFormObjectValue.acceleration0_100KmhS ? (
+        <TextInput
+          placeholder="Acceleration 0-100 km/h (s)"
+          defaultValue={variantFormObjectValue.acceleration0_100KmhS.toString()}
+          keyboardType="decimal-pad"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange(
+              'acceleration0_100KmhS',
+              parseFloat(txt)
+            )
+          }
+          style={styles.inputField}
+        ></TextInput>
+      ) : (
+        <TextInput
+          placeholder="Acceleration 0-100 km/h (s)"
+          keyboardType="decimal-pad"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange(
+              'acceleration0_100KmhS',
+              parseFloat(txt)
+            )
+          }
+          style={styles.inputField}
+        ></TextInput>
+      )}
+      {variantFormObjectValue.fuelConsumptionL100Km ? (
+        <TextInput
+          placeholder="Fuel consumption (L/100 km)"
+          defaultValue={variantFormObjectValue.fuelConsumptionL100Km.toString()}
+          keyboardType="decimal-pad"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange(
+              'fuelConsumptionL100Km',
+              parseFloat(txt)
+            )
+          }
+          style={styles.inputField}
+        ></TextInput>
+      ) : (
+        <TextInput
+          placeholder="Fuel consumption (L/100 km)"
+          keyboardType="decimal-pad"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange(
+              'fuelConsumptionL100Km',
+              parseFloat(txt)
+            )
+          }
+          style={styles.inputField}
+        ></TextInput>
+      )}
+      {variantFormObjectValue.co2EmissionsGkm ? (
+        <TextInput
+          placeholder="Co2 emissions (g/km)"
+          defaultValue={variantFormObjectValue.co2EmissionsGkm.toString()}
+          keyboardType="number-pad"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange('co2EmissionsGkm', parseInt(txt))
+          }
+          style={styles.inputField}
+        ></TextInput>
+      ) : (
+        <TextInput
+          placeholder="Co2 emissions (g/km)"
+          keyboardType="number-pad"
+          onChangeText={(txt) =>
+            handleAddVariantInputChange('co2EmissionsGkm', parseInt(txt))
+          }
+          style={styles.inputField}
+        ></TextInput>
+      )}
     </View>
   );
 };
@@ -152,8 +272,13 @@ const getAddedVariantObjects = () => {
   return variantObjectsArray;
 };
 
+VariantFormCreator.propTypes = {
+  variants: PropTypes.array,
+};
+
 VariantFormObject.propTypes = {
   variantFormObjectIndex: PropTypes.number,
+  variantFormObjectValue: PropTypes.object,
 };
 
 export {VariantFormCreator, getAddedVariantObjects};

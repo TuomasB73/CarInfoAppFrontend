@@ -160,6 +160,7 @@ const useLoadBrands = () => {
 
 const useLoadCarModels = (variables) => {
   const [carModelsArray, setCarModelsArray] = useState([]);
+  const {updateCarModels} = useContext(MainContext);
 
   const getCarModels = async () => {
     const query = {
@@ -185,12 +186,13 @@ const useLoadCarModels = (variables) => {
   };
   useEffect(() => {
     getCarModels();
-  }, []);
+  }, [updateCarModels]);
   return carModelsArray;
 };
 
 const useLoadCarModel = (variables) => {
   const [carModel, setCarModel] = useState(null);
+  const {updateCarModel} = useContext(MainContext);
 
   const getCarModel = async () => {
     const query = {
@@ -235,7 +237,7 @@ const useLoadCarModel = (variables) => {
   };
   useEffect(() => {
     getCarModel();
-  }, []);
+  }, [updateCarModel]);
   return carModel;
 };
 
@@ -246,30 +248,6 @@ const useCar = () => {
               mutation Mutation($brand: String!, $model: String!, $year: Int!, $bodyStyles: [String], $numbersOfDoors: [Int], $drivetrains: [String], $variants: [VariantInput], $defaultImageFilename: String) {
                 addCar(brand: $brand, model: $model, year: $year, bodyStyles: $bodyStyles, numbersOfDoors: $numbersOfDoors, drivetrains: $drivetrains, variants: $variants, defaultImageFilename: $defaultImageFilename) {
                   id
-                  fullModelName {
-                    id
-                    name
-                  }
-                  brand {
-                    id
-                    name
-                  }
-                  model
-                  year
-                  bodyStyles
-                  numbersOfDoors
-                  drivetrains
-                  variants {
-                    id
-                    fuelType
-                    engineDisplacement
-                    transmission
-                    powerHp
-                    acceleration0_100KmhS
-                    fuelConsumptionL100Km
-                    co2EmissionsGkm
-                  }
-                  defaultImageFilename
                 }
               }`,
       variables,
@@ -279,6 +257,24 @@ const useCar = () => {
       return data.addCar;
     } catch (e) {
       console.log('postCar', e.message);
+    }
+  };
+
+  const modifyCar = async (variables, token) => {
+    const query = {
+      query: `
+              mutation Mutation($modifyCarId: ID, $brand: String, $model: String, $year: Int, $bodyStyles: [String], $numbersOfDoors: [Int], $drivetrains: [String], $variants: [VariantInput], $defaultImageFilename: String) {
+                modifyCar(id: $modifyCarId, brand: $brand, model: $model, year: $year, bodyStyles: $bodyStyles, numbersOfDoors: $numbersOfDoors, drivetrains: $drivetrains, variants: $variants, defaultImageFilename: $defaultImageFilename) {
+                  id
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query, token);
+      return data.modifyCar;
+    } catch (e) {
+      console.log('modifyCar', e.message);
     }
   };
 
@@ -320,7 +316,7 @@ const useCar = () => {
     return uploadedFilename;
   };
 
-  return {postCar, postCarImage};
+  return {postCar, modifyCar, postCarImage};
 };
 
 export {useUser, useLoadBrands, useLoadCarModels, useLoadCarModel, useCar};
