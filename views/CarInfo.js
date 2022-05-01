@@ -26,7 +26,13 @@ const CarInfo = ({navigation, route}) => {
               <Text style={styles.titleText}>
                 {carModel.fullModelName.name}
               </Text>
-              <Image style={styles.image}></Image>
+              <Image
+                source={{
+                  uri: `https://env-8426215.jelastic.metropolia.fi/uploads/${carModel.defaultImageFilename}`,
+                }}
+                style={styles.image}
+                resizeMode="contain"
+              ></Image>
               <View style={styles.buttonsContainer}>
                 <Button
                   title="Reviews"
@@ -98,7 +104,6 @@ const styles = StyleSheet.create({
   image: {
     height: 220,
     margin: 10,
-    backgroundColor: 'blue',
   },
   buttonsContainer: {
     flexDirection: 'row',

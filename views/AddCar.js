@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,9 @@ import {
   FlatList,
   TextInput,
   Button,
+  Alert,
+  Image,
+  TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {
@@ -20,10 +23,68 @@ import {
   DrivetrainPickerCreator,
   getAddedDrivetrainNames,
 } from '../components/DrivetrainPickerCreator';
-import {Picker} from '@react-native-picker/picker';
+import {
+  VariantFormCreator,
+  getAddedVariantObjects,
+} from '../components/VariantFormCreator';
+import useAddCarForm from '../hooks/AddCarHooks';
+import {useCar} from '../hooks/ApiHooks';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {MainContext} from '../contexts/MainContext';
+import {CommonActions} from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 
 const AddCar = ({navigation}) => {
-  const [selectedFuelType, setSelectedFuelType] = useState();
+  const {addCarInputs, handleAddCarInputChange} = useAddCarForm();
+  const {postCar, postCarImage} = useCar();
+  const {updateBrands, setUpdateBrands} = useContext(MainContext);
+  const [image, setImage] = useState(null);
+  const [fileType, setFileType] = useState('');
+
+  const saveCar = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const defaultImageFilename = await postCarImage(
+        image,
+        fileType,
+        userToken
+      );
+      const addCarFormData = {
+        ...addCarInputs,
+        bodyStyles: getAddedBodyStyleNames(),
+        numbersOfDoors: getAddedNumberOfDoorsNumbers(),
+        drivetrains: getAddedDrivetrainNames(),
+        variants: getAddedVariantObjects(),
+        defaultImageFilename,
+      };
+      const addedCar = await postCar(addCarFormData, userToken);
+      if (addedCar) {
+        const resetAction = CommonActions.reset({
+          index: 0,
+          routes: [{name: 'Add car'}],
+        });
+        navigation.dispatch(resetAction);
+        setUpdateBrands(updateBrands + 1);
+        navigation.navigate('Home');
+      } else {
+        Alert.alert('Error in saving car');
+      }
+    } catch (error) {
+      console.error('saveCar error', error.message);
+    }
+  };
+
+  const chooseImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+    if (!result.cancelled) {
+      setFileType(result.type);
+      setImage(result.uri);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -50,7 +111,9 @@ const AddCar = ({navigation}) => {
               <TextInput
                 placeholder="Year"
                 keyboardType="number-pad"
-                onChangeText={(txt) => handleAddCarInputChange('year', txt)}
+                onChangeText={(txt) =>
+                  handleAddCarInputChange('year', parseInt(txt))
+                }
                 style={styles.inputField}
               ></TextInput>
               <View style={styles.sectionContainer}>
@@ -67,74 +130,26 @@ const AddCar = ({navigation}) => {
               </View>
               <View style={styles.sectionContainer}>
                 <Text style={styles.text}>Variant(s)</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={selectedFuelType}
-                    onValueChange={(itemValue, itemIndex) =>
-                      setSelectedFuelType(itemValue)
-                    }
-                  >
-                    <Picker.Item label="gasoline" value="gasoline" />
-                    <Picker.Item label="diesel" value="diesel" />
-                    <Picker.Item label="hybrid" value="hybrid" />
-                    <Picker.Item
-                      label="plug-in hybrid"
-                      value="plug-in hybrid"
-                    />
-                    <Picker.Item label="electric" value="electric" />
-                    <Picker.Item label="hydrogen" value="hydrogen" />
-                    <Picker.Item label="ethanol" value="ethanol" />
-                  </Picker>
-                </View>
-                <TextInput
-                  placeholder="Engine displacement"
-                  onChangeText={(txt) =>
-                    handleAddCarInputChange('engineDisplacement', txt)
-                  }
-                  style={styles.inputField}
-                ></TextInput>
-                <TextInput
-                  placeholder="Transmission"
-                  onChangeText={(txt) =>
-                    handleAddCarInputChange('transmission', txt)
-                  }
-                  style={styles.inputField}
-                ></TextInput>
-                <TextInput
-                  placeholder="Power (hp)"
-                  keyboardType="number-pad"
-                  onChangeText={(txt) =>
-                    handleAddCarInputChange('powerHp', txt)
-                  }
-                  style={styles.inputField}
-                ></TextInput>
-                <TextInput
-                  placeholder="Acceleration 0-100 km/h s"
-                  keyboardType="decimal-pad"
-                  onChangeText={(txt) =>
-                    handleAddCarInputChange('acceleration0_100KmhS', txt)
-                  }
-                  style={styles.inputField}
-                ></TextInput>
-                <TextInput
-                  placeholder="Fuel consumption"
-                  keyboardType="decimal-pad"
-                  onChangeText={(txt) =>
-                    handleAddCarInputChange('fuelConsumptionL100Km', txt)
-                  }
-                  style={styles.inputField}
-                ></TextInput>
-                <TextInput
-                  placeholder="Co2 emissions (g/km)"
-                  keyboardType="number-pad"
-                  onChangeText={(txt) =>
-                    handleAddCarInputChange('co2EmissionsGkm', txt)
-                  }
-                  style={styles.inputField}
-                ></TextInput>
+                <VariantFormCreator></VariantFormCreator>
               </View>
-
-              <Button title="Save"></Button>
+              <View style={styles.sectionContainer}>
+                <TouchableOpacity
+                  style={styles.chooseImageButton}
+                  onPress={chooseImage}
+                >
+                  <Text style={styles.text}>Choose a default image</Text>
+                </TouchableOpacity>
+                <View style={styles.imageContainer}>
+                  <Image
+                    source={{uri: image}}
+                    style={styles.image}
+                    resizeMode="contain"
+                  ></Image>
+                </View>
+              </View>
+              <View style={styles.saveButton}>
+                <Button title="Save" onPress={saveCar}></Button>
+              </View>
             </View>
           </>
         }
@@ -161,9 +176,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'lightblue',
     borderRadius: 10,
-    marginTop: 20,
-    marginStart: 60,
-    marginEnd: 60,
+    margin: 20,
+    marginStart: 36,
+    marginEnd: 36,
     padding: 8,
   },
   inputField: {
@@ -176,6 +191,26 @@ const styles = StyleSheet.create({
   sectionContainer: {
     backgroundColor: '#d0d8db',
     margin: 4,
+  },
+  chooseImageButton: {
+    backgroundColor: '#72b1d6',
+    borderRadius: 10,
+    margin: 10,
+  },
+  imageContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: '#d5e3eb',
+    borderRadius: 10,
+    margin: 10,
+  },
+  image: {
+    width: '40%',
+    height: 60,
+    margin: 10,
+  },
+  saveButton: {
+    margin: 20,
   },
 });
 
