@@ -2,6 +2,8 @@ import {useContext, useEffect, useState} from 'react';
 import {MainContext} from '../contexts/MainContext';
 
 const GRAPHQL_URL = 'https://env-8426215.jelastic.metropolia.fi/graphql';
+const POST_IMAGE_URL =
+  'https://env-8426215.jelastic.metropolia.fi/image-upload';
 
 const fetchGraphql = async (query, token) => {
   const options = {
@@ -280,7 +282,45 @@ const useCar = () => {
     }
   };
 
-  return {postCar};
+  const postCarImage = async (image, fileType, token) => {
+    let uploadedFilename;
+    const axios = require('axios').default;
+    const filename = image.split('/').pop();
+
+    // Infer the type of the image/video
+    const match = /\.(\w+)$/.exec(filename);
+    let type = match ? `${fileType}/${match[1]}` : fileType;
+    if (type === 'image/jpg') type = 'image/jpeg';
+
+    const formData = new FormData();
+    formData.append('image', {uri: image, name: filename, type});
+
+    const options = {
+      url: POST_IMAGE_URL,
+      method: 'POST',
+      headers: {
+        'content-type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+      data: formData,
+    };
+
+    try {
+      await axios(options).then(async (res) => {
+        if (res.status == 200) {
+          console.log('Upload successful: ', res.status, res.message);
+          uploadedFilename = res.data;
+        } else {
+          console.log('Upload error: ', res.status, res.message);
+        }
+      });
+    } catch (e) {
+      console.log('postCarImage', e.message);
+    }
+    return uploadedFilename;
+  };
+
+  return {postCar, postCarImage};
 };
 
 export {useUser, useLoadBrands, useLoadCarModels, useLoadCarModel, useCar};

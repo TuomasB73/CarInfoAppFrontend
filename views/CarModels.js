@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
     backgroundColor: 'lightblue',
+    borderRadius: 10,
     marginTop: 20,
     marginStart: 60,
     marginEnd: 60,
