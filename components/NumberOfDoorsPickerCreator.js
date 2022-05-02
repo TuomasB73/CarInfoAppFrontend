@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {Picker} from '@react-native-picker/picker';
 import {Ionicons} from '@expo/vector-icons';
 
-let numberOfDoorsNumbersArray = [1];
+let numberOfDoorsNumbersArray;
 
 const NumberOfDoorsPickerCreator = ({numbersOfDoors}) => {
   const [refreshNumberOfDoorsPickers, setRefreshNumberOfDoorsPickers] =
@@ -17,7 +17,7 @@ const NumberOfDoorsPickerCreator = ({numbersOfDoors}) => {
   };
 
   useEffect(() => {
-    if (numbersOfDoors && refreshNumberOfDoorsPickers === 0) {
+    if (refreshNumberOfDoorsPickers === 0) {
       numberOfDoorsNumbersArray = numbersOfDoors;
     }
     setRenderCopyArray(numberOfDoorsNumbersArray);
