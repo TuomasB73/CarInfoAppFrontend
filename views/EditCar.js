@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {
@@ -67,7 +68,6 @@ const EditCar = ({navigation, route}) => {
       if (defaultImageFilename) {
         editCarFormData.defaultImageFilename = defaultImageFilename;
       }
-      console.log('EDITCAR', JSON.stringify(editCarFormData));
       const editedCar = await modifyCar(editCarFormData, userToken);
       if (editedCar) {
         const popAction = StackActions.pop();
@@ -99,6 +99,16 @@ const EditCar = ({navigation, route}) => {
     handleEditCarInputChange('brand', carModel.brand.name);
     handleEditCarInputChange('model', carModel.model);
     handleEditCarInputChange('year', carModel.year);
+
+    (async () => {
+      if (Platform.OS !== 'web') {
+        const {status} =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          alert('Camera roll permissions are required for choosing an image!');
+        }
+      }
+    })();
   }, []);
 
   return (

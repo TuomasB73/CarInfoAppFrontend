@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {Picker} from '@react-native-picker/picker';
 import {Ionicons} from '@expo/vector-icons';
 
-let drivetrainNamesArray = ['front-wheel drive'];
+let drivetrainNamesArray;
 
 const DrivetrainPickerCreator = ({drivetrains}) => {
   const [refreshDrivetrainPickers, setRefreshDrivetrainPickers] = useState(0);
@@ -16,7 +16,7 @@ const DrivetrainPickerCreator = ({drivetrains}) => {
   };
 
   useEffect(() => {
-    if (drivetrains && refreshDrivetrainPickers === 0) {
+    if (refreshDrivetrainPickers === 0) {
       drivetrainNamesArray = drivetrains;
     }
     setRenderCopyArray(drivetrainNamesArray);

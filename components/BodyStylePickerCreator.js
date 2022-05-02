@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {Picker} from '@react-native-picker/picker';
 import {Ionicons} from '@expo/vector-icons';
 
-let bodyStyleNamesArray = ['hatchback'];
+let bodyStyleNamesArray;
 
 const BodyStylePickerCreator = ({bodyStyles}) => {
   const [refreshBodyStylePickers, setRefreshBodyStylePickers] = useState(0);
@@ -16,7 +16,7 @@ const BodyStylePickerCreator = ({bodyStyles}) => {
   };
 
   useEffect(() => {
-    if (bodyStyles && refreshBodyStylePickers === 0) {
+    if (refreshBodyStylePickers === 0) {
       bodyStyleNamesArray = bodyStyles;
     }
     setRenderCopyArray(bodyStyleNamesArray);

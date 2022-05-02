@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {
@@ -40,6 +41,15 @@ const AddCar = ({navigation}) => {
   const {updateBrands, setUpdateBrands} = useContext(MainContext);
   const [image, setImage] = useState(null);
   const [fileType, setFileType] = useState('');
+  const [bodyStylePickerInitialValue, setBodyStylePickerInitialValue] =
+    useState(['hatchback']);
+  const [numberOfDoorsPickerInitialValue, setNumberOfDoorsPickerInitialValue] =
+    useState([1]);
+  const [drivetrainPickerInitialValue, setDrivetrainPickerInitialValue] =
+    useState(['front-wheel drive']);
+  const [variantFormInitialValue, setVariantFormInitialValue] = useState([
+    {fuelType: 'gasoline'},
+  ]);
 
   const saveCar = async () => {
     try {
@@ -58,9 +68,13 @@ const AddCar = ({navigation}) => {
       if (defaultImageFilename) {
         addCarFormData.defaultImageFilename = defaultImageFilename;
       }
-      console.log('ADDCAR', JSON.stringify(addCarFormData));
       const addedCar = await postCar(addCarFormData, userToken);
       if (addedCar) {
+        setBodyStylePickerInitialValue(['hatchback']);
+        setNumberOfDoorsPickerInitialValue([1]);
+        setDrivetrainPickerInitialValue(['front-wheel drive']);
+        setVariantFormInitialValue([{fuelType: 'gasoline'}]);
+
         const resetAction = CommonActions.reset({
           index: 0,
           routes: [{name: 'Add car'}],
@@ -87,6 +101,18 @@ const AddCar = ({navigation}) => {
       setImage(result.uri);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== 'web') {
+        const {status} =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          alert('Camera roll permissions are required for choosing an image!');
+        }
+      }
+    })();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -120,19 +146,27 @@ const AddCar = ({navigation}) => {
               ></TextInput>
               <View style={styles.sectionContainer}>
                 <Text style={styles.text}>Body style(s)</Text>
-                <BodyStylePickerCreator></BodyStylePickerCreator>
+                <BodyStylePickerCreator
+                  bodyStyles={bodyStylePickerInitialValue}
+                ></BodyStylePickerCreator>
               </View>
               <View style={styles.sectionContainer}>
                 <Text style={styles.text}>Number(s) of doors</Text>
-                <NumberOfDoorsPickerCreator></NumberOfDoorsPickerCreator>
+                <NumberOfDoorsPickerCreator
+                  numbersOfDoors={numberOfDoorsPickerInitialValue}
+                ></NumberOfDoorsPickerCreator>
               </View>
               <View style={styles.sectionContainer}>
                 <Text style={styles.text}>Drivetrain(s)</Text>
-                <DrivetrainPickerCreator></DrivetrainPickerCreator>
+                <DrivetrainPickerCreator
+                  drivetrains={drivetrainPickerInitialValue}
+                ></DrivetrainPickerCreator>
               </View>
               <View style={styles.sectionContainer}>
                 <Text style={styles.text}>Variant(s)</Text>
-                <VariantFormCreator></VariantFormCreator>
+                <VariantFormCreator
+                  variants={variantFormInitialValue}
+                ></VariantFormCreator>
               </View>
               <View style={styles.sectionContainer}>
                 <TouchableOpacity

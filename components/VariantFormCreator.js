@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import {Picker} from '@react-native-picker/picker';
 import {Ionicons} from '@expo/vector-icons';
 
-let variantObjectsArray = [{fuelType: 'gasoline'}];
+let variantObjectsArray;
 
 const VariantFormCreator = ({variants}) => {
   const [refreshVariantForms, setRefreshVariantForms] = useState(0);
