@@ -10,6 +10,8 @@ import CarModels from '../views/CarModels';
 import CarInfo from '../views/CarInfo';
 import CarModelPictures from '../views/CarModelPictures';
 import Reviews from '../views/Reviews';
+import AddReview from '../views/AddReview';
+import AddPicture from '../views/AddPicture';
 import Login from '../views/Login';
 import {Ionicons} from '@expo/vector-icons';
 import EditCar from '../views/EditCar';
@@ -63,10 +65,12 @@ const StackScreen = () => {
           <Stack.Screen name="Car info" component={CarInfo} />
           <Stack.Screen name="Edit car" component={EditCar} />
           <Stack.Screen name="Reviews" component={Reviews} />
+          <Stack.Screen name="Add review" component={AddReview} />
           <Stack.Screen
             name="Car model pictures"
             component={CarModelPictures}
           />
+          <Stack.Screen name="Add picture" component={AddPicture} />
         </>
       ) : (
         <Stack.Screen

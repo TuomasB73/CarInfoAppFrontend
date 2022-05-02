@@ -10,6 +10,8 @@ const MainProvider = ({children}) => {
   const [updateBrands, setUpdateBrands] = useState(0);
   const [updateCarModels, setUpdateCarModels] = useState(0);
   const [updateCarModel, setUpdateCarModel] = useState(0);
+  const [updateReviews, setUpdateReviews] = useState(0);
+  const [updatePictures, setUpdatePictures] = useState(0);
 
   return (
     <MainContext.Provider
@@ -26,6 +28,10 @@ const MainProvider = ({children}) => {
         setUpdateCarModels,
         updateCarModel,
         setUpdateCarModel,
+        updateReviews,
+        setUpdateReviews,
+        updatePictures,
+        setUpdatePictures,
       }}
     >
       {children}
