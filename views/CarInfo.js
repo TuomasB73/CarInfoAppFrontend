@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import {useLoadCarModel} from '../hooks/ApiHooks';
 import {Ionicons} from '@expo/vector-icons';
 import Variant from '../components/Variant';
+import {UPLOADS_URL} from '../utils/Variables';
 
 const CarInfo = ({navigation, route}) => {
   const {carId} = route.params;
@@ -28,7 +29,7 @@ const CarInfo = ({navigation, route}) => {
               </Text>
               <Image
                 source={{
-                  uri: `https://env-8426215.jelastic.metropolia.fi/uploads/${carModel.defaultImageFilename}`,
+                  uri: `${UPLOADS_URL}${carModel.defaultImageFilename}`,
                 }}
                 style={styles.image}
                 resizeMode="contain"
@@ -37,7 +38,10 @@ const CarInfo = ({navigation, route}) => {
                 <Button
                   title="Reviews"
                   onPress={() => {
-                    navigation.navigate('Reviews', {carId: carModel.id});
+                    navigation.navigate('Reviews', {
+                      carId: carModel.id,
+                      carModelName: carModel.fullModelName.name,
+                    });
                   }}
                 />
                 <Button
@@ -45,6 +49,7 @@ const CarInfo = ({navigation, route}) => {
                   onPress={() => {
                     navigation.navigate('Car model pictures', {
                       carId: carModel.id,
+                      carModelName: carModel.fullModelName.name,
                     });
                   }}
                 />

@@ -1,9 +1,6 @@
 import {useContext, useEffect, useState} from 'react';
 import {MainContext} from '../contexts/MainContext';
-
-const GRAPHQL_URL = 'https://env-8426215.jelastic.metropolia.fi/graphql';
-const POST_IMAGE_URL =
-  'https://env-8426215.jelastic.metropolia.fi/image-upload';
+import {GRAPHQL_URL, POST_IMAGE_URL} from '../utils/Variables';
 
 const fetchGraphql = async (query, token) => {
   const options = {
@@ -241,6 +238,113 @@ const useLoadCarModel = (variables) => {
   return carModel;
 };
 
+const useLoadReviews = (variables) => {
+  const [reviewsArray, setReviewsArray] = useState([]);
+  const {updateReviews} = useContext(MainContext);
+
+  const getReviews = async () => {
+    const query = {
+      query: `
+              query Query($car: ID!) {
+                getAllReviewsByCarId(car: $car) {
+                  id
+                  user {
+                    id
+                    nickname
+                  }
+                  text
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query);
+      setReviewsArray(data.getAllReviewsByCarId);
+    } catch (e) {
+      console.log('getReviews', e.message);
+    }
+  };
+  useEffect(() => {
+    getReviews();
+  }, [updateReviews]);
+  return reviewsArray;
+};
+
+const useLoadCarModelPictures = (variables) => {
+  const [picturesArray, setPicturesArray] = useState([]);
+  const {updatePictures} = useContext(MainContext);
+
+  const getPictures = async () => {
+    const query = {
+      query: `
+              query Query($car: ID!) {
+                getAllPicturesByCarId(car: $car) {
+                  id
+                  car {
+                    fullModelName {
+                      name
+                    }
+                  }
+                  user {
+                    id
+                    nickname
+                  }
+                  imageFilename
+                  text
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query);
+      setPicturesArray(data.getAllPicturesByCarId);
+    } catch (e) {
+      console.log('getPictures', e.message);
+    }
+  };
+  useEffect(() => {
+    getPictures();
+  }, [updatePictures]);
+  return picturesArray;
+};
+
+const useLoadAllPictures = () => {
+  const [picturesArray, setPicturesArray] = useState([]);
+  const {updatePictures} = useContext(MainContext);
+
+  const getPictures = async () => {
+    const query = {
+      query: `
+              query Query {
+                getAllPictures {
+                  id
+                  car {
+                    fullModelName {
+                      name
+                    }
+                  }
+                  user {
+                      id
+                      nickname
+                    }
+                    imageFilename
+                    text
+                  }
+                }`,
+    };
+    try {
+      const data = await fetchGraphql(query);
+      setPicturesArray(data.getAllPictures);
+    } catch (e) {
+      console.log('getPictures', e.message);
+    }
+  };
+  useEffect(() => {
+    getPictures();
+  }, [updatePictures]);
+  return picturesArray;
+};
+
 const useCar = () => {
   const postCar = async (variables, token) => {
     const query = {
@@ -319,4 +423,77 @@ const useCar = () => {
   return {postCar, modifyCar, postCarImage};
 };
 
-export {useUser, useLoadBrands, useLoadCarModels, useLoadCarModel, useCar};
+const useReview = () => {
+  const postReview = async (variables, token) => {
+    const query = {
+      query: `
+              mutation Mutation($car: ID!, $text: String!) {
+                addReview(car: $car, text: $text) {
+                  id
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query, token);
+      return data.addReview;
+    } catch (e) {
+      console.log('postReview', e.message);
+    }
+  };
+
+  return {postReview};
+};
+
+const usePicture = () => {
+  const postPicture = async (variables, token) => {
+    const query = {
+      query: `
+              mutation Mutation($car: ID!, $imageFilename: String!, $text: String) {
+                addPicture(car: $car, imageFilename: $imageFilename, text: $text) {
+                  id
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query, token);
+      return data.addPicture;
+    } catch (e) {
+      console.log('postPicture', e.message);
+    }
+  };
+
+  const deletePicture = async (variables, token) => {
+    const query = {
+      query: `
+              mutation Mutation($deleteMyPictureId: ID!) {
+                deleteMyPicture(id: $deleteMyPictureId) {
+                  id
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query, token);
+      return data.deleteMyPicture;
+    } catch (e) {
+      console.log('deletePicture', e.message);
+    }
+  };
+
+  return {postPicture, deletePicture};
+};
+
+export {
+  useUser,
+  useLoadBrands,
+  useLoadCarModels,
+  useLoadCarModel,
+  useLoadReviews,
+  useLoadCarModelPictures,
+  useLoadAllPictures,
+  useCar,
+  useReview,
+  usePicture,
+};
