@@ -10,6 +10,7 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {
@@ -39,6 +40,7 @@ const EditCar = ({navigation, route}) => {
   const {carModel} = route.params;
   const {editCarInputs, handleEditCarInputChange} = useEditCarForm();
   const {modifyCar, postCarImage} = useCar();
+  const [isLoading, setIsLoading] = useState(false);
   const {
     updateBrands,
     setUpdateBrands,
@@ -51,6 +53,7 @@ const EditCar = ({navigation, route}) => {
   const [fileType, setFileType] = useState('');
 
   const saveCar = async () => {
+    setIsLoading(true);
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       let defaultImageFilename;
@@ -69,6 +72,7 @@ const EditCar = ({navigation, route}) => {
         editCarFormData.defaultImageFilename = defaultImageFilename;
       }
       const editedCar = await modifyCar(editCarFormData, userToken);
+      setIsLoading(false);
       if (editedCar) {
         const popAction = StackActions.pop();
         navigation.dispatch(popAction);
@@ -79,6 +83,7 @@ const EditCar = ({navigation, route}) => {
         Alert.alert('Error in saving edited car info');
       }
     } catch (error) {
+      setIsLoading(false);
       console.error('saveCar error', error.message);
     }
   };
@@ -182,7 +187,11 @@ const EditCar = ({navigation, route}) => {
                 </View>
               </View>
               <View style={styles.saveButton}>
-                <Button title="Save" onPress={saveCar}></Button>
+                {isLoading ? (
+                  <ActivityIndicator size="large" color="blue" />
+                ) : (
+                  <Button title="Save" onPress={saveCar}></Button>
+                )}
               </View>
             </View>
           </>

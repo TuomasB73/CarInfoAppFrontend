@@ -10,6 +10,7 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {
@@ -38,7 +39,8 @@ import * as ImagePicker from 'expo-image-picker';
 const AddCar = ({navigation}) => {
   const {addCarInputs, handleAddCarInputChange} = useAddCarForm();
   const {postCar, postCarImage} = useCar();
-  const {updateBrands, setUpdateBrands} = useContext(MainContext);
+  const {isLoggedIn, updateBrands, setUpdateBrands} = useContext(MainContext);
+  const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(null);
   const [fileType, setFileType] = useState('');
   const [bodyStylePickerInitialValue, setBodyStylePickerInitialValue] =
@@ -52,6 +54,7 @@ const AddCar = ({navigation}) => {
   ]);
 
   const saveCar = async () => {
+    setIsLoading(true);
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       let defaultImageFilename;
@@ -69,6 +72,7 @@ const AddCar = ({navigation}) => {
         addCarFormData.defaultImageFilename = defaultImageFilename;
       }
       const addedCar = await postCar(addCarFormData, userToken);
+      setIsLoading(false);
       if (addedCar) {
         setBodyStylePickerInitialValue(['hatchback']);
         setNumberOfDoorsPickerInitialValue([1]);
@@ -86,6 +90,7 @@ const AddCar = ({navigation}) => {
         Alert.alert('Error in saving car');
       }
     } catch (error) {
+      setIsLoading(false);
       console.error('saveCar error', error.message);
     }
   };
@@ -116,80 +121,90 @@ const AddCar = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        ListHeaderComponent={
-          <>
-            <Text style={styles.titleText}>
-              Add a car model to the database
-            </Text>
-            <Text style={styles.text}>
-              Please fill in the correct information
-            </Text>
-            <View style={styles.formContainer}>
-              <TextInput
-                placeholder="Brand"
-                onChangeText={(txt) => handleAddCarInputChange('brand', txt)}
-                style={styles.inputField}
-              ></TextInput>
-              <TextInput
-                placeholder="Model"
-                onChangeText={(txt) => handleAddCarInputChange('model', txt)}
-                style={styles.inputField}
-              ></TextInput>
-              <TextInput
-                placeholder="Year"
-                keyboardType="number-pad"
-                onChangeText={(txt) =>
-                  handleAddCarInputChange('year', parseInt(txt))
-                }
-                style={styles.inputField}
-              ></TextInput>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.text}>Body style(s)</Text>
-                <BodyStylePickerCreator
-                  bodyStyles={bodyStylePickerInitialValue}
-                ></BodyStylePickerCreator>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.text}>Number(s) of doors</Text>
-                <NumberOfDoorsPickerCreator
-                  numbersOfDoors={numberOfDoorsPickerInitialValue}
-                ></NumberOfDoorsPickerCreator>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.text}>Drivetrain(s)</Text>
-                <DrivetrainPickerCreator
-                  drivetrains={drivetrainPickerInitialValue}
-                ></DrivetrainPickerCreator>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.text}>Variant(s)</Text>
-                <VariantFormCreator
-                  variants={variantFormInitialValue}
-                ></VariantFormCreator>
-              </View>
-              <View style={styles.sectionContainer}>
-                <TouchableOpacity
-                  style={styles.chooseImageButton}
-                  onPress={chooseImage}
-                >
-                  <Text style={styles.text}>Choose a default image</Text>
-                </TouchableOpacity>
-                <View style={styles.imageContainer}>
-                  <Image
-                    source={{uri: image}}
-                    style={styles.image}
-                    resizeMode="contain"
-                  ></Image>
+      {isLoggedIn ? (
+        <FlatList
+          ListHeaderComponent={
+            <>
+              <Text style={styles.titleText}>
+                Add a car model to the database
+              </Text>
+              <Text style={styles.text}>
+                Please fill in the correct information
+              </Text>
+              <View style={styles.formContainer}>
+                <TextInput
+                  placeholder="Brand"
+                  onChangeText={(txt) => handleAddCarInputChange('brand', txt)}
+                  style={styles.inputField}
+                ></TextInput>
+                <TextInput
+                  placeholder="Model"
+                  onChangeText={(txt) => handleAddCarInputChange('model', txt)}
+                  style={styles.inputField}
+                ></TextInput>
+                <TextInput
+                  placeholder="Year"
+                  keyboardType="number-pad"
+                  onChangeText={(txt) =>
+                    handleAddCarInputChange('year', parseInt(txt))
+                  }
+                  style={styles.inputField}
+                ></TextInput>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.text}>Body style(s)</Text>
+                  <BodyStylePickerCreator
+                    bodyStyles={bodyStylePickerInitialValue}
+                  ></BodyStylePickerCreator>
+                </View>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.text}>Number(s) of doors</Text>
+                  <NumberOfDoorsPickerCreator
+                    numbersOfDoors={numberOfDoorsPickerInitialValue}
+                  ></NumberOfDoorsPickerCreator>
+                </View>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.text}>Drivetrain(s)</Text>
+                  <DrivetrainPickerCreator
+                    drivetrains={drivetrainPickerInitialValue}
+                  ></DrivetrainPickerCreator>
+                </View>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.text}>Variant(s)</Text>
+                  <VariantFormCreator
+                    variants={variantFormInitialValue}
+                  ></VariantFormCreator>
+                </View>
+                <View style={styles.sectionContainer}>
+                  <TouchableOpacity
+                    style={styles.chooseImageButton}
+                    onPress={chooseImage}
+                  >
+                    <Text style={styles.text}>Choose a default image</Text>
+                  </TouchableOpacity>
+                  <View style={styles.imageContainer}>
+                    <Image
+                      source={{uri: image}}
+                      style={styles.image}
+                      resizeMode="contain"
+                    ></Image>
+                  </View>
+                </View>
+                <View style={styles.saveButton}>
+                  {isLoading ? (
+                    <ActivityIndicator size="large" color="blue" />
+                  ) : (
+                    <Button title="Save" onPress={saveCar}></Button>
+                  )}
                 </View>
               </View>
-              <View style={styles.saveButton}>
-                <Button title="Save" onPress={saveCar}></Button>
-              </View>
-            </View>
-          </>
-        }
-      ></FlatList>
+            </>
+          }
+        ></FlatList>
+      ) : (
+        <Text style={styles.loginPromptText}>
+          You must login/register to add a car
+        </Text>
+      )}
     </View>
   );
 };
@@ -247,6 +262,11 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     margin: 20,
+  },
+  loginPromptText: {
+    fontSize: 18,
+    textAlign: 'center',
+    margin: 40,
   },
 });
 

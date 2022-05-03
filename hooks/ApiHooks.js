@@ -280,11 +280,6 @@ const useLoadCarModelPictures = (variables) => {
               query Query($car: ID!) {
                 getAllPicturesByCarId(car: $car) {
                   id
-                  car {
-                    fullModelName {
-                      name
-                    }
-                  }
                   user {
                     id
                     nickname
@@ -310,7 +305,8 @@ const useLoadCarModelPictures = (variables) => {
 
 const useLoadAllPictures = () => {
   const [picturesArray, setPicturesArray] = useState([]);
-  const {updatePictures} = useContext(MainContext);
+  const {updatePictures, picturesLoaded, setPicturesLoaded} =
+    useContext(MainContext);
 
   const getPictures = async () => {
     const query = {
@@ -335,6 +331,7 @@ const useLoadAllPictures = () => {
     try {
       const data = await fetchGraphql(query);
       setPicturesArray(data.getAllPictures);
+      setPicturesLoaded(picturesLoaded + 1);
     } catch (e) {
       console.log('getPictures', e.message);
     }
@@ -442,7 +439,25 @@ const useReview = () => {
     }
   };
 
-  return {postReview};
+  const deleteReview = async (variables, token) => {
+    const query = {
+      query: `
+              mutation Mutation($deleteMyReviewId: ID!) {
+                deleteMyReview(id: $deleteMyReviewId) {
+                  id
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query, token);
+      return data.deleteMyReview;
+    } catch (e) {
+      console.log('deleteReview', e.message);
+    }
+  };
+
+  return {postReview, deleteReview};
 };
 
 const usePicture = () => {
@@ -485,6 +500,67 @@ const usePicture = () => {
   return {postPicture, deletePicture};
 };
 
+const useLike = () => {
+  const getLikes = async (variables) => {
+    const query = {
+      query: `
+              query Query($picture: ID!) {
+                getAllLikesByPictureId(picture: $picture) {
+                  id
+                  user {
+                    id
+                  }
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query);
+      return data.getAllLikesByPictureId;
+    } catch (e) {
+      console.log('getLikes', e.message);
+    }
+  };
+
+  const postLike = async (variables, token) => {
+    const query = {
+      query: `
+              mutation Mutation($picture: ID!) {
+                addLike(picture: $picture) {
+                  id
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query, token);
+      return data.addLike;
+    } catch (e) {
+      console.log('postLike', e.message);
+    }
+  };
+
+  const deleteLike = async (variables, token) => {
+    const query = {
+      query: `
+              mutation Mutation($picture: ID!) {
+                deleteMyLike(picture: $picture) {
+                  id
+                }
+              }`,
+      variables,
+    };
+    try {
+      const data = await fetchGraphql(query, token);
+      return data.deleteMyLike;
+    } catch (e) {
+      console.log('deleteLike', e.message);
+    }
+  };
+
+  return {getLikes, postLike, deleteLike};
+};
+
 export {
   useUser,
   useLoadBrands,
@@ -496,4 +572,5 @@ export {
   useCar,
   useReview,
   usePicture,
+  useLike,
 };

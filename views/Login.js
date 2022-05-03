@@ -12,6 +12,7 @@ import {
   Alert,
   StyleSheet,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import PropTypes from 'prop-types';
@@ -26,7 +27,7 @@ const Login = ({navigation}) => {
     useContext(MainContext);
   const [formToggle, setFormToggle] = useState(true);
   const {postLogin, postRegister, checkToken} = useUser();
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const {loginInputs, handleLoginInputChange} = useLoginForm();
   const {
     registerInputs,
@@ -67,7 +68,7 @@ const Login = ({navigation}) => {
   };
 
   const doLogin = async () => {
-    setLoading(true);
+    setIsLoading(true);
     try {
       const userData = await postLogin({
         username: loginInputs.email,
@@ -76,13 +77,13 @@ const Login = ({navigation}) => {
       if (userData) {
         setUser(userData);
         await AsyncStorage.setItem('userToken', userData.token);
-        setLoading(false);
         setIsLoggedIn(true);
       } else {
-        setLoading(false);
         Alert.alert('Invalid username or password');
       }
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error('doLogin error', error.message);
     }
   };
@@ -94,6 +95,7 @@ const Login = ({navigation}) => {
       return;
     }
     delete registerInputs.confirmPassword;
+    setIsLoading(true);
     try {
       await postRegister({
         username: registerInputs.email,
@@ -110,7 +112,9 @@ const Login = ({navigation}) => {
         await AsyncStorage.setItem('userToken', userData.token);
         setIsLoggedIn(true);
       }
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log('doRegister', error);
       Alert.alert('Registration failed');
     }
@@ -152,7 +156,11 @@ const Login = ({navigation}) => {
                     secureTextEntry={true}
                     style={styles.inputField}
                   ></TextInput>
-                  <Button title="Login" onPress={doLogin} loading={loading} />
+                  {isLoading ? (
+                    <ActivityIndicator size="large" color="blue" />
+                  ) : (
+                    <Button title="Login" onPress={doLogin} />
+                  )}
                 </View>
               ) : (
                 <View>
@@ -217,7 +225,11 @@ const Login = ({navigation}) => {
                     errorMessage={registerErrors.confirmPassword}
                     style={styles.inputField}
                   ></TextInput>
-                  <Button title="Register" onPress={doRegister} />
+                  {isLoading ? (
+                    <ActivityIndicator size="large" color="blue" />
+                  ) : (
+                    <Button title="Register" onPress={doRegister} />
+                  )}
                 </View>
               )}
               <TouchableOpacity

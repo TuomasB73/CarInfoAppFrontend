@@ -1,5 +1,13 @@
-import React, {useContext} from 'react';
-import {View, Text, StyleSheet, TextInput, Button, Alert} from 'react-native';
+import React, {useContext, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Button,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import PropTypes from 'prop-types';
 import useAddReviewForm from '../hooks/AddReviewHooks';
 import {useReview} from '../hooks/ApiHooks';
@@ -12,14 +20,17 @@ const AddReview = ({navigation, route}) => {
   const {addReviewInputs, handleAddReviewInputChange} = useAddReviewForm();
   const {postReview} = useReview();
   const {updateReviews, setUpdateReviews} = useContext(MainContext);
+  const [isLoading, setIsLoading] = useState(false);
 
   const saveReview = async () => {
+    setIsLoading(true);
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       const addedReview = await postReview(
         {car: carId, ...addReviewInputs},
         userToken
       );
+      setIsLoading(false);
       if (addedReview) {
         const popAction = StackActions.pop();
         navigation.dispatch(popAction);
@@ -28,6 +39,7 @@ const AddReview = ({navigation, route}) => {
         Alert.alert('Error in saving review');
       }
     } catch (e) {
+      setIsLoading(false);
       console.log('saveReview error', e.message);
     }
   };
@@ -43,7 +55,11 @@ const AddReview = ({navigation, route}) => {
         multiline={true}
       ></TextInput>
       <View style={styles.buttonContainer}>
-        <Button title="Save" onPress={saveReview}></Button>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="blue" />
+        ) : (
+          <Button title="Save" onPress={saveReview}></Button>
+        )}
       </View>
     </View>
   );
@@ -74,7 +90,9 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   buttonContainer: {
-    margin: 50,
+    margin: 10,
+    marginStart: 50,
+    marginEnd: 50,
   },
 });
 
