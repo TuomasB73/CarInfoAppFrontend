@@ -1,11 +1,41 @@
-import React from 'react';
-import {View, Text, StyleSheet, FlatList, Button} from 'react-native';
+import React, {useContext} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Button,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import PropTypes from 'prop-types';
 import {useLoadReviews} from '../hooks/ApiHooks';
+import {useReview} from '../hooks/ApiHooks';
+import {MainContext} from '../contexts/MainContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Ionicons} from '@expo/vector-icons';
 
 const Reviews = ({navigation, route}) => {
   const {carId, carModelName} = route.params;
   const reviewsArray = useLoadReviews({car: carId});
+  const {isLoggedIn, updateReviews, setUpdateReviews, user} =
+    useContext(MainContext);
+  const {deleteReview} = useReview();
+
+  const deleteMyReview = async (reviewId) => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const deletedReview = await deleteReview(
+        {deleteMyReviewId: reviewId},
+        userToken
+      );
+      if (deletedReview) {
+        setUpdateReviews(updateReviews + 1);
+      }
+    } catch (e) {
+      console.log('deleteReview error', e.message);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -18,7 +48,11 @@ const Reviews = ({navigation, route}) => {
               <Button
                 title="Add a review"
                 onPress={() => {
-                  navigation.navigate('Add review', {carId, carModelName});
+                  if (isLoggedIn) {
+                    navigation.navigate('Add review', {carId, carModelName});
+                  } else {
+                    Alert.alert('You must login/register to add a review');
+                  }
                 }}
               ></Button>
             </View>
@@ -29,9 +63,36 @@ const Reviews = ({navigation, route}) => {
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({item}) => (
                     <View style={styles.reviewContainer}>
-                      <Text style={styles.usernameText}>
-                        {item.user.nickname}
-                      </Text>
+                      <View style={styles.userContainer}>
+                        <Text style={styles.usernameText}>
+                          {item.user.nickname}
+                        </Text>
+                        {user.id === item.user.id && (
+                          <TouchableOpacity
+                            style={styles.iconButton}
+                            onPress={() => {
+                              Alert.alert(
+                                'Delete',
+                                'Are you sure you want to delete this review?',
+                                [
+                                  {
+                                    text: 'Cancel',
+                                    style: 'cancel',
+                                  },
+                                  {
+                                    text: 'Delete',
+                                    onPress: () => deleteMyReview(item.id),
+                                  },
+                                ],
+                                {cancelable: false}
+                              );
+                            }}
+                          >
+                            <Ionicons name="trash" size={30} />
+                          </TouchableOpacity>
+                        )}
+                      </View>
+
                       <Text style={styles.reviewText}>{item.text}</Text>
                     </View>
                   )}
@@ -78,8 +139,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
   },
+  userContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   usernameText: {
     fontSize: 20,
+  },
+  iconButton: {
+    margin: 4,
   },
   reviewText: {
     fontSize: 16,

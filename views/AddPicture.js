@@ -9,6 +9,7 @@ import {
   Platform,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import useAddPictureForm from '../hooks/AddPictureHooks';
@@ -24,10 +25,12 @@ const AddPicture = ({navigation, route}) => {
   const {postPicture} = usePicture();
   const {updatePictures, setUpdatePictures} = useContext(MainContext);
   const {postCarImage} = useCar();
+  const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(null);
   const [fileType, setFileType] = useState('');
 
   const savePicture = async () => {
+    setIsLoading(true);
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       const imageFilename = await postCarImage(image, fileType, userToken);
@@ -35,6 +38,7 @@ const AddPicture = ({navigation, route}) => {
         {car: carId, imageFilename, ...addPictureInputs},
         userToken
       );
+      setIsLoading(false);
       if (addedPicture) {
         const popAction = StackActions.pop();
         navigation.dispatch(popAction);
@@ -43,6 +47,7 @@ const AddPicture = ({navigation, route}) => {
         Alert.alert('Error in saving picture');
       }
     } catch (e) {
+      setIsLoading(false);
       console.log('savePicture error', e.message);
     }
   };
@@ -96,7 +101,11 @@ const AddPicture = ({navigation, route}) => {
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <Button title="Save" onPress={savePicture}></Button>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="blue" />
+        ) : (
+          <Button title="Save" onPress={savePicture}></Button>
+        )}
       </View>
     </View>
   );
@@ -147,7 +156,9 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   buttonContainer: {
-    margin: 50,
+    margin: 10,
+    marginStart: 50,
+    marginEnd: 50,
   },
 });
 

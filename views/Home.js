@@ -30,7 +30,7 @@ const Home = ({navigation}) => {
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.logoutLoginButton} onPress={login}>
-            <Text style={styles.buttonText}>Login</Text>
+            <Text style={styles.buttonText}>Login/register</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -62,10 +62,12 @@ const styles = StyleSheet.create({
   },
   logoutLoginButtonContainer: {
     alignSelf: 'flex-end',
-    margin: 4,
+    margin: 8,
+    backgroundColor: '#d5e3eb',
+    borderRadius: 10,
   },
   logoutLoginButton: {
-    padding: 14,
+    padding: 10,
   },
   buttonText: {
     fontSize: 16,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   View,
   Text,
@@ -7,16 +7,19 @@ import {
   TouchableOpacity,
   FlatList,
   Button,
+  Alert,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {useLoadCarModel} from '../hooks/ApiHooks';
 import {Ionicons} from '@expo/vector-icons';
 import Variant from '../components/Variant';
 import {UPLOADS_URL} from '../utils/Variables';
+import {MainContext} from '../contexts/MainContext';
 
 const CarInfo = ({navigation, route}) => {
   const {carId} = route.params;
   const carModel = useLoadCarModel({getCarByIdId: carId});
+  const {isLoggedIn} = useContext(MainContext);
 
   return (
     <View style={styles.container}>
@@ -59,7 +62,11 @@ const CarInfo = ({navigation, route}) => {
                 <TouchableOpacity
                   style={styles.editButton}
                   onPress={() => {
-                    navigation.navigate('Edit car', {carModel});
+                    if (isLoggedIn) {
+                      navigation.navigate('Edit car', {carModel});
+                    } else {
+                      Alert.alert('You must login/register to edit a car');
+                    }
                   }}
                 >
                   <Ionicons name="pencil" size={30} />
