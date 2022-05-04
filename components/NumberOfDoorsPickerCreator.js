@@ -67,6 +67,7 @@ const NumberOfDoorsPickerObject = ({
   return (
     <View style={styles.pickerContainer}>
       <Picker
+        mode="dropdown"
         selectedValue={selectedNumberOfDoors}
         onValueChange={(itemValue, itemIndex) => updateValue(itemValue)}
       >

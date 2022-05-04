@@ -305,8 +305,7 @@ const useLoadCarModelPictures = (variables) => {
 
 const useLoadAllPictures = () => {
   const [picturesArray, setPicturesArray] = useState([]);
-  const {updatePictures, picturesLoaded, setPicturesLoaded} =
-    useContext(MainContext);
+  const {updatePictures} = useContext(MainContext);
 
   const getPictures = async () => {
     const query = {
@@ -331,7 +330,6 @@ const useLoadAllPictures = () => {
     try {
       const data = await fetchGraphql(query);
       setPicturesArray(data.getAllPictures);
-      setPicturesLoaded(picturesLoaded + 1);
     } catch (e) {
       console.log('getPictures', e.message);
     }

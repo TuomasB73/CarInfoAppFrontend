@@ -63,6 +63,7 @@ const BodyStylePickerObject = ({
   return (
     <View style={styles.pickerContainer}>
       <Picker
+        mode="dropdown"
         selectedValue={selectedBodyStyle}
         onValueChange={(itemValue, itemIndex) => updateValue(itemValue)}
       >
