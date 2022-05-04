@@ -96,6 +96,7 @@ const VariantFormObject = ({
     <View style={styles.variantContainer}>
       <View style={styles.pickerContainer}>
         <Picker
+          mode="dropdown"
           selectedValue={selectedFuelType}
           onValueChange={(itemValue, itemIndex) => updateValue(itemValue)}
         >

@@ -63,6 +63,7 @@ const DrivetrainPickerObject = ({
   return (
     <View style={styles.pickerContainer}>
       <Picker
+        mode="dropdown"
         selectedValue={selectedDrivetrain}
         onValueChange={(itemValue, itemIndex) => updateValue(itemValue)}
       >
