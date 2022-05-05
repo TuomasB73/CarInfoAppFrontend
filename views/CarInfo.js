@@ -30,13 +30,23 @@ const CarInfo = ({navigation, route}) => {
               <Text style={styles.titleText}>
                 {carModel.fullModelName.name}
               </Text>
-              <Image
-                source={{
-                  uri: `${UPLOADS_URL}${carModel.defaultImageFilename}`,
-                }}
-                style={styles.image}
-                resizeMode="contain"
-              ></Image>
+              {/* <View style={styles.imageContainer}> */}
+              {carModel.defaultImageFilename ? (
+                <Image
+                  source={{
+                    uri: `${UPLOADS_URL}${carModel.defaultImageFilename}`,
+                  }}
+                  style={styles.image}
+                  resizeMode="contain"
+                ></Image>
+              ) : (
+                <Image
+                  source={require('../assets/no_picture.png')}
+                  style={styles.image}
+                  resizeMode="contain"
+                ></Image>
+              )}
+              {/* </View> */}
               <View style={styles.buttonsContainer}>
                 <Button
                   title="Reviews"
@@ -118,9 +128,14 @@ const styles = StyleSheet.create({
     margin: 10,
     marginTop: 20,
   },
+  imageContainer: {
+    height: 300,
+  },
   image: {
+    width: '90%',
     height: 220,
     margin: 10,
+    alignSelf: 'center',
   },
   buttonsContainer: {
     flexDirection: 'row',
