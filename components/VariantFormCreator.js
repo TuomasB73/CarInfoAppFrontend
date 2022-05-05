@@ -13,6 +13,7 @@ import {Ionicons} from '@expo/vector-icons';
 
 let variantObjectsArray;
 
+// Creates the right amount of variant forms and manages the data of them.
 const VariantFormCreator = ({variants}) => {
   const [refreshVariantForms, setRefreshVariantForms] = useState(0);
   const [renderCopyArray, setRenderCopyArray] = useState([]);

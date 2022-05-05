@@ -6,6 +6,7 @@ import {Ionicons} from '@expo/vector-icons';
 
 let bodyStyleNamesArray;
 
+// Creates the right amount of body style pickers and manages the data of them.
 const BodyStylePickerCreator = ({bodyStyles}) => {
   const [refreshBodyStylePickers, setRefreshBodyStylePickers] = useState(0);
   const [renderCopyArray, setRenderCopyArray] = useState([]);
