@@ -53,38 +53,45 @@ const EditCar = ({navigation, route}) => {
   const [fileType, setFileType] = useState('');
 
   const saveCar = async () => {
-    setIsLoading(true);
-    try {
-      const userToken = await AsyncStorage.getItem('userToken');
-      let defaultImageFilename;
-      if (image) {
-        defaultImageFilename = await postCarImage(image, fileType, userToken);
+    if (Object.values(editCarInputs).some((x) => x === '')) {
+      Alert.alert('Brand, model and year fields are required.');
+    } else {
+      setIsLoading(true);
+      try {
+        const userToken = await AsyncStorage.getItem('userToken');
+        let defaultImageFilename;
+        if (image) {
+          defaultImageFilename = await postCarImage(image, fileType, userToken);
+        }
+        const editCarFormData = {
+          modifyCarId: carModel.id,
+          ...editCarInputs,
+          bodyStyles: getAddedBodyStyleNames(),
+          numbersOfDoors: getAddedNumberOfDoorsNumbers(),
+          drivetrains: getAddedDrivetrainNames(),
+          variants: getAddedVariantObjects(),
+        };
+        if (defaultImageFilename) {
+          editCarFormData.defaultImageFilename = defaultImageFilename;
+        }
+        const editedCar = await modifyCar(editCarFormData, userToken);
+        setIsLoading(false);
+        if (editedCar) {
+          const popAction = StackActions.pop();
+          navigation.dispatch(popAction);
+          setUpdateCarModel(updateCarModel + 1);
+          setUpdateBrands(updateBrands + 1);
+          setUpdateCarModels(updateCarModels + 1);
+        } else {
+          Alert.alert(
+            'Error in saving edited car info',
+            'This car already exists.'
+          );
+        }
+      } catch (error) {
+        setIsLoading(false);
+        console.error('saveCar error', error.message);
       }
-      const editCarFormData = {
-        modifyCarId: carModel.id,
-        ...editCarInputs,
-        bodyStyles: getAddedBodyStyleNames(),
-        numbersOfDoors: getAddedNumberOfDoorsNumbers(),
-        drivetrains: getAddedDrivetrainNames(),
-        variants: getAddedVariantObjects(),
-      };
-      if (defaultImageFilename) {
-        editCarFormData.defaultImageFilename = defaultImageFilename;
-      }
-      const editedCar = await modifyCar(editCarFormData, userToken);
-      setIsLoading(false);
-      if (editedCar) {
-        const popAction = StackActions.pop();
-        navigation.dispatch(popAction);
-        setUpdateCarModel(updateCarModel + 1);
-        setUpdateBrands(updateBrands + 1);
-        setUpdateCarModels(updateCarModels + 1);
-      } else {
-        Alert.alert('Error in saving edited car info');
-      }
-    } catch (error) {
-      setIsLoading(false);
-      console.error('saveCar error', error.message);
     }
   };
 

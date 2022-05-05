@@ -23,24 +23,28 @@ const AddReview = ({navigation, route}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const saveReview = async () => {
-    setIsLoading(true);
-    try {
-      const userToken = await AsyncStorage.getItem('userToken');
-      const addedReview = await postReview(
-        {car: carId, ...addReviewInputs},
-        userToken
-      );
-      setIsLoading(false);
-      if (addedReview) {
-        const popAction = StackActions.pop();
-        navigation.dispatch(popAction);
-        setUpdateReviews(updateReviews + 1);
-      } else {
-        Alert.alert('Error in saving review');
+    if (Object.values(addReviewInputs).some((x) => x === '')) {
+      Alert.alert('Review text can not be empty.');
+    } else {
+      setIsLoading(true);
+      try {
+        const userToken = await AsyncStorage.getItem('userToken');
+        const addedReview = await postReview(
+          {car: carId, ...addReviewInputs},
+          userToken
+        );
+        setIsLoading(false);
+        if (addedReview) {
+          const popAction = StackActions.pop();
+          navigation.dispatch(popAction);
+          setUpdateReviews(updateReviews + 1);
+        } else {
+          Alert.alert('Error in saving review');
+        }
+      } catch (e) {
+        setIsLoading(false);
+        console.log('saveReview error', e.message);
       }
-    } catch (e) {
-      setIsLoading(false);
-      console.log('saveReview error', e.message);
     }
   };
 

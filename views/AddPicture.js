@@ -28,6 +28,7 @@ const AddPicture = ({navigation, route}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState(null);
   const [fileType, setFileType] = useState('');
+  const [imageChosen, setImageChosen] = useState(false);
 
   const savePicture = async () => {
     setIsLoading(true);
@@ -61,6 +62,7 @@ const AddPicture = ({navigation, route}) => {
     if (!result.cancelled) {
       setFileType(result.type);
       setImage(result.uri);
+      setImageChosen(true);
     }
   };
 
@@ -104,7 +106,18 @@ const AddPicture = ({navigation, route}) => {
         {isLoading ? (
           <ActivityIndicator size="large" color="blue" />
         ) : (
-          <Button title="Save" onPress={savePicture}></Button>
+          <>
+            {imageChosen ? (
+              <Button title="Save" onPress={savePicture}></Button>
+            ) : (
+              <Button
+                title="Save"
+                onPress={() => {
+                  Alert.alert('Choose an image first.');
+                }}
+              ></Button>
+            )}
+          </>
         )}
       </View>
     </View>

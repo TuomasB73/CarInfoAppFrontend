@@ -54,44 +54,48 @@ const AddCar = ({navigation}) => {
   ]);
 
   const saveCar = async () => {
-    setIsLoading(true);
-    try {
-      const userToken = await AsyncStorage.getItem('userToken');
-      let defaultImageFilename;
-      if (image) {
-        defaultImageFilename = await postCarImage(image, fileType, userToken);
-      }
-      const addCarFormData = {
-        ...addCarInputs,
-        bodyStyles: getAddedBodyStyleNames(),
-        numbersOfDoors: getAddedNumberOfDoorsNumbers(),
-        drivetrains: getAddedDrivetrainNames(),
-        variants: getAddedVariantObjects(),
-      };
-      if (defaultImageFilename) {
-        addCarFormData.defaultImageFilename = defaultImageFilename;
-      }
-      const addedCar = await postCar(addCarFormData, userToken);
-      setIsLoading(false);
-      if (addedCar) {
-        setBodyStylePickerInitialValue(['hatchback']);
-        setNumberOfDoorsPickerInitialValue([1]);
-        setDrivetrainPickerInitialValue(['front-wheel drive']);
-        setVariantFormInitialValue([{fuelType: 'gasoline'}]);
+    if (Object.values(addCarInputs).some((x) => x === '')) {
+      Alert.alert('Brand, model and year fields are required.');
+    } else {
+      setIsLoading(true);
+      try {
+        const userToken = await AsyncStorage.getItem('userToken');
+        let defaultImageFilename;
+        if (image) {
+          defaultImageFilename = await postCarImage(image, fileType, userToken);
+        }
+        const addCarFormData = {
+          ...addCarInputs,
+          bodyStyles: getAddedBodyStyleNames(),
+          numbersOfDoors: getAddedNumberOfDoorsNumbers(),
+          drivetrains: getAddedDrivetrainNames(),
+          variants: getAddedVariantObjects(),
+        };
+        if (defaultImageFilename) {
+          addCarFormData.defaultImageFilename = defaultImageFilename;
+        }
+        const addedCar = await postCar(addCarFormData, userToken);
+        setIsLoading(false);
+        if (addedCar) {
+          setBodyStylePickerInitialValue(['hatchback']);
+          setNumberOfDoorsPickerInitialValue([1]);
+          setDrivetrainPickerInitialValue(['front-wheel drive']);
+          setVariantFormInitialValue([{fuelType: 'gasoline'}]);
 
-        const resetAction = CommonActions.reset({
-          index: 0,
-          routes: [{name: 'Add car'}],
-        });
-        navigation.dispatch(resetAction);
-        navigation.navigate('Home');
-        setUpdateBrands(updateBrands + 1);
-      } else {
-        Alert.alert('Error in saving car');
+          const resetAction = CommonActions.reset({
+            index: 0,
+            routes: [{name: 'Add car'}],
+          });
+          navigation.dispatch(resetAction);
+          navigation.navigate('Home');
+          setUpdateBrands(updateBrands + 1);
+        } else {
+          Alert.alert('Error in saving car', 'This car already exists.');
+        }
+      } catch (error) {
+        setIsLoading(false);
+        console.error('saveCar error', error.message);
       }
-    } catch (error) {
-      setIsLoading(false);
-      console.error('saveCar error', error.message);
     }
   };
 
