@@ -26,7 +26,7 @@ const AllPictures = ({navigation}) => {
     user,
     updatePictures,
     setUpdatePictures,
-    updatePicsOfAllPicsScreen,
+    updatePicsOfAllPicsView,
   } = useContext(MainContext);
   const {deletePicture} = usePicture();
   const {getLikes, postLike, deleteLike} = useLike();
@@ -55,13 +55,10 @@ const AllPictures = ({navigation}) => {
 
   const setList = (sortValue, picturesArray) => {
     if (sortValue === 'Most liked') {
-      console.log('most liked', JSON.stringify([...picturesArray]));
-      const sortedArray = [...picturesArray].sort(
-        (a, b) => b.likeCount - a.likeCount
+      setPicturesArrayToDisplay(
+        [...picturesArray].sort((a, b) => b.likeCount - a.likeCount)
       );
-      setPicturesArrayToDisplay(sortedArray);
     } else {
-      console.log('pics arr', JSON.stringify(picturesArray));
       setPicturesArrayToDisplay(picturesArray);
     }
   };
@@ -90,7 +87,6 @@ const AllPictures = ({navigation}) => {
               picturesArray[arrayIndex].isLiked = false;
             }
             setList(sortPickerValue, picturesArray);
-            console.log('likefunc', JSON.stringify(picturesArray));
           }
         }
       } catch (e) {
@@ -118,7 +114,7 @@ const AllPictures = ({navigation}) => {
 
   useEffect(() => {
     getPicturesLikes();
-  }, [picturesArray, updatePicsOfAllPicsScreen]);
+  }, [picturesArray, updatePicsOfAllPicsView]);
 
   return (
     <View style={styles.container}>

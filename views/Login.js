@@ -90,7 +90,10 @@ const Login = ({navigation}) => {
 
   const doRegister = async () => {
     if (!validateOnSend()) {
-      Alert.alert('Invalid inputs');
+      Alert.alert(
+        'Invalid inputs',
+        'Email required, nickname min length 3 characters, password min length 5 characters.'
+      );
       console.log('validate on send failed');
       return;
     }
