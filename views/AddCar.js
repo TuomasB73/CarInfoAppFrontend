@@ -232,8 +232,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightblue',
     borderRadius: 10,
     margin: 20,
-    marginStart: 36,
-    marginEnd: 36,
+    marginStart: 20,
+    marginEnd: 20,
     padding: 8,
   },
   inputField: {
