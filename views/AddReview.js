@@ -23,6 +23,7 @@ const AddReview = ({navigation, route}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const saveReview = async () => {
+    // If required fields are empty, an alert will be shown.
     if (Object.values(addReviewInputs).some((x) => x === '')) {
       Alert.alert('Review text can not be empty.');
     } else {

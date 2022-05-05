@@ -6,6 +6,7 @@ import {Ionicons} from '@expo/vector-icons';
 
 let numberOfDoorsNumbersArray;
 
+// Creates the right amount of number of doors pickers and manages the data of them.
 const NumberOfDoorsPickerCreator = ({numbersOfDoors}) => {
   const [refreshNumberOfDoorsPickers, setRefreshNumberOfDoorsPickers] =
     useState(0);

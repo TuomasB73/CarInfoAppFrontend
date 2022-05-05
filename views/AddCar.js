@@ -54,6 +54,7 @@ const AddCar = ({navigation}) => {
   ]);
 
   const saveCar = async () => {
+    // If required fields are empty, an alert will be shown.
     if (Object.values(addCarInputs).some((x) => x === '')) {
       Alert.alert('Brand, model and year fields are required.');
     } else {

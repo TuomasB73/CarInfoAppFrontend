@@ -32,6 +32,7 @@ const AllPictures = ({navigation}) => {
   const {getLikes, postLike, deleteLike} = useLike();
   const [sortPickerValue, setSortPickerValue] = useState();
 
+  // Fetch all pictures' likes and add them to the array.
   const getPicturesLikes = async () => {
     try {
       const picturesWithLikes = picturesArray.reverse();
@@ -53,6 +54,7 @@ const AllPictures = ({navigation}) => {
     }
   };
 
+  // Change the array's order depending which picker value is set.
   const setList = (sortValue, picturesArray) => {
     if (sortValue === 'Most liked') {
       setPicturesArrayToDisplay(

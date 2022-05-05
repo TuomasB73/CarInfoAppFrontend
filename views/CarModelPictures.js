@@ -32,6 +32,7 @@ const CarModelPictures = ({navigation, route}) => {
   const {deletePicture} = usePicture();
   const {getLikes, postLike, deleteLike} = useLike();
 
+  // Fetch all pictures' likes and add them to the array.
   const getPicturesLikes = async () => {
     try {
       const picturesWithLikes = picturesArray.reverse();

@@ -53,6 +53,7 @@ const EditCar = ({navigation, route}) => {
   const [fileType, setFileType] = useState('');
 
   const saveCar = async () => {
+    // If required fields are empty, an alert will be shown.
     if (Object.values(editCarInputs).some((x) => x === '')) {
       Alert.alert('Brand, model and year fields are required.');
     } else {

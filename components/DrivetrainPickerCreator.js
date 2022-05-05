@@ -6,6 +6,7 @@ import {Ionicons} from '@expo/vector-icons';
 
 let drivetrainNamesArray;
 
+// Creates the right amount of drivetrain pickers and manages the data of them.
 const DrivetrainPickerCreator = ({drivetrains}) => {
   const [refreshDrivetrainPickers, setRefreshDrivetrainPickers] = useState(0);
   const [renderCopyArray, setRenderCopyArray] = useState([]);

@@ -39,7 +39,7 @@ const Login = ({navigation}) => {
     validateOnSend,
   } = useSignUpForm();
 
-  // Function for checking whether a user is already logged in or used the app anonymously, and checking the authentication token.
+  // Checking whether a user is already logged in or used the app anonymously, and checking the authentication token.
   const getToken = async () => {
     const anonymousUser = await AsyncStorage.getItem('anonymousUser');
     if (anonymousUser === 'true') {
@@ -61,7 +61,7 @@ const Login = ({navigation}) => {
     }
   };
 
-  // Function for skipping the login and using the app anonymously.
+  // skipping the login and using the app anonymously
   const skipLogin = async () => {
     await AsyncStorage.setItem('anonymousUser', 'true');
     setIsUsingAnonymously(true);

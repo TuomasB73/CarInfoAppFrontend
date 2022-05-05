@@ -18,6 +18,7 @@ const CarModels = ({navigation, route}) => {
   const [selectedYearPickerValue, setSelectedYearPickerValue] = useState();
   let filteredCarModelsArray = [];
 
+  // Depending which picker value is changed and if the other picker value is set, filter the array.
   const pickerItemSelected = (picker, itemValue) => {
     if (picker === 'modelPicker') {
       setSelectedModelPickerValue(itemValue);
@@ -72,6 +73,7 @@ const CarModels = ({navigation, route}) => {
   };
 
   useEffect(() => {
+    // Set values to the pickers
     setCarModelsArrayToDisplay(carModelsArray);
     const filteredByModelCarModelsArray = carModelsArray.filter(
       (value, index, self) =>
