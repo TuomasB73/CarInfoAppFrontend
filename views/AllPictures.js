@@ -21,8 +21,13 @@ const AllPictures = ({navigation}) => {
   const picturesArray = useLoadAllPictures();
   const [picturesArrayWithLikes, setPicturesArrayWithLikes] = useState([]);
   const [picturesArrayToDisplay, setPicturesArrayToDisplay] = useState([]);
-  const {isLoggedIn, user, updatePictures, setUpdatePictures} =
-    useContext(MainContext);
+  const {
+    isLoggedIn,
+    user,
+    updatePictures,
+    setUpdatePictures,
+    updatePicsOfAllPicsScreen,
+  } = useContext(MainContext);
   const {deletePicture} = usePicture();
   const {getLikes, postLike, deleteLike} = useLike();
   const [sortPickerValue, setSortPickerValue] = useState();
@@ -42,39 +47,50 @@ const AllPictures = ({navigation}) => {
         })
       );
       setPicturesArrayWithLikes(picturesWithLikes);
-      if (sortPickerValue === 'Most liked') {
-        setPicturesArrayToDisplay(
-          picturesWithLikes.sort((a, b) => b.likeCount - a.likeCount)
-        );
-      } else {
-        setPicturesArrayToDisplay(picturesWithLikes);
-      }
+      setList(sortPickerValue, picturesWithLikes);
     } catch (e) {
       console.log('getPicturesLikes error', e.message);
     }
   };
 
-  const sortValueChanged = (itemValue) => {
-    setSortPickerValue(itemValue);
-    setUpdatePictures(updatePictures + 1);
+  const setList = (sortValue, picturesArray) => {
+    if (sortValue === 'Most liked') {
+      console.log('most liked', JSON.stringify([...picturesArray]));
+      const sortedArray = [...picturesArray].sort(
+        (a, b) => b.likeCount - a.likeCount
+      );
+      setPicturesArrayToDisplay(sortedArray);
+    } else {
+      console.log('pics arr', JSON.stringify(picturesArray));
+      setPicturesArrayToDisplay(picturesArray);
+    }
   };
 
-  const likeDislike = async (pictureIndex, pictureId) => {
+  const likeDislike = async (pictureId) => {
     if (isLoggedIn) {
       try {
         const userToken = await AsyncStorage.getItem('userToken');
-        if (picturesArrayWithLikes[pictureIndex].isLiked) {
-          const dislikedPicture = await deleteLike(
-            {picture: pictureId},
-            userToken
-          );
-          if (dislikedPicture) {
-            setUpdatePictures(updatePictures + 1);
-          }
+        let postedLikeDislike;
+        const arrayIndex = picturesArrayWithLikes.findIndex(
+          (picture) => picture.id === pictureId
+        );
+        if (picturesArrayWithLikes[arrayIndex].isLiked) {
+          postedLikeDislike = await deleteLike({picture: pictureId}, userToken);
         } else {
-          const likedPicture = await postLike({picture: pictureId}, userToken);
-          if (likedPicture) {
-            setUpdatePictures(updatePictures + 1);
+          postedLikeDislike = await postLike({picture: pictureId}, userToken);
+        }
+        if (postedLikeDislike) {
+          const updatedLikes = await getLikes({picture: pictureId});
+          if (updatedLikes) {
+            const picturesArray = [...picturesArrayWithLikes];
+            picturesArray[arrayIndex].likeCount = updatedLikes.length;
+            if (updatedLikes.filter((e) => e.user.id === user.id).length > 0) {
+              picturesArray[arrayIndex].isLiked = true;
+            } else {
+              picturesArray[arrayIndex].isLiked = false;
+            }
+            setList(sortPickerValue, picturesArray);
+            console.log('likefunc', JSON.stringify(picturesArray));
           }
         }
       } catch (e) {
@@ -102,7 +118,7 @@ const AllPictures = ({navigation}) => {
 
   useEffect(() => {
     getPicturesLikes();
-  }, [picturesArray, updatePictures]);
+  }, [picturesArray, updatePicsOfAllPicsScreen]);
 
   return (
     <View style={styles.container}>
@@ -114,9 +130,10 @@ const AllPictures = ({navigation}) => {
               <Picker
                 mode="dropdown"
                 selectedValue={sortPickerValue}
-                onValueChange={(itemValue, itemIndex) =>
-                  sortValueChanged(itemValue)
-                }
+                onValueChange={(itemValue, itemIndex) => {
+                  setSortPickerValue(itemValue);
+                  setList(itemValue, picturesArrayWithLikes);
+                }}
               >
                 <Picker.Item label={'Newest'} value={'Newest'} />
                 <Picker.Item label={'Most liked'} value={'Most liked'} />
@@ -127,7 +144,7 @@ const AllPictures = ({navigation}) => {
                 <FlatList
                   data={picturesArrayToDisplay}
                   keyExtractor={(item, index) => index.toString()}
-                  renderItem={({item, index}) => (
+                  renderItem={({item}) => (
                     <View style={styles.pictureContainer}>
                       <View style={styles.userContainer}>
                         <Text style={styles.usernameText}>
@@ -163,7 +180,7 @@ const AllPictures = ({navigation}) => {
                           <View style={styles.likesContainer}>
                             <TouchableOpacity
                               style={styles.iconButton}
-                              onPress={() => likeDislike(index, item.id)}
+                              onPress={() => likeDislike(item.id)}
                             >
                               {item.isLiked ? (
                                 <Ionicons name="heart" size={30} />

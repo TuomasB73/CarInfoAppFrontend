@@ -15,8 +15,14 @@ import {MainContext} from '../contexts/MainContext';
 import {usePicture, useLike} from '../hooks/ApiHooks';
 
 const PictureListItem = ({navigation, picture, allPictures}) => {
-  const {isLoggedIn, user, updatePictures, setUpdatePictures} =
-    useContext(MainContext);
+  const {
+    isLoggedIn,
+    user,
+    updatePictures,
+    setUpdatePictures,
+    updatePicsOfAllPicsScreen,
+    setUpdatePicsOfAllPicsScreen,
+  } = useContext(MainContext);
   const {deletePicture} = usePicture();
   const [likeCount, setLikeCount] = useState(0);
   const [updateLikes, setUpdateLikes] = useState(0);
@@ -56,6 +62,7 @@ const PictureListItem = ({navigation, picture, allPictures}) => {
           }
         }
         setUpdateLikes(updateLikes + 1);
+        setUpdatePicsOfAllPicsScreen(updatePicsOfAllPicsScreen + 1);
       } catch (e) {
         console.log('likeDislike error', e.message);
       }
